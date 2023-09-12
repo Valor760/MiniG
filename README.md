@@ -4,9 +4,9 @@
 
 This project is made in scope of Group Project in Software Engineering course.
 
-### Done by
-Stanislavs Nilovs
+### Made by
+- Stanislavs Nilovs
 
-Aleksejs Nikiforovs
+- Aleksejs Nikiforovs
 
-Jurijs Lunevs
+- Jurijs Lunevs
