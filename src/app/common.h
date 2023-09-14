@@ -20,12 +20,5 @@
 
 #define MINIG_UNUSED(x) ((void)(x))
 
-/* FIXME: Intellisence in VSCode on Windows doesn't work if defines are only written in CMakeLists.txt */
-#ifndef MINIG_PLATFORM_LINUX
-	#ifndef MINIG_PLATFORM_WINDOWS
-		#define MINIG_PLATFORM_WINDOWS
-	#endif
-#endif
-
 /* OTHER STUFF */
 namespace fs = std::filesystem;
