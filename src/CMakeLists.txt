@@ -11,7 +11,7 @@ if(MSVC)
 	target_compile_definitions(${EXEC} PUBLIC ${WINDOWS_DEFINES} ${COMMON_DEFINES})
 	set_property(TARGET ${EXEC} PROPERTY CXX_STANDARD 20)
 elseif(UNIX AND NOT APPLE)
-	target_compile_definitions(${TARGET} PUBLIC ${LINUX_DEFINES} ${COMMON_DEFINES})
+	target_compile_definitions(${EXEC} PUBLIC ${LINUX_DEFINES} ${COMMON_DEFINES})
 	set_property(TARGET ${EXEC} PROPERTY CXX_STANDARD 20)
 endif()
 
