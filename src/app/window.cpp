@@ -4,9 +4,7 @@ namespace MiniG
 {
 void GLFW_WindowSizeCallback(GLFWwindow* window, int new_width, int new_height)
 {
-	void* ptr = nullptr;
-	glfwSetWindowUserPointer(window, ptr);
-	Window* wnd = static_cast<Window*>(ptr);
+	Window* wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
 	/* TODO: assert wnd != nullptr*/
 	WindowSize prev_size = wnd->GetSize();
 	
