@@ -1,8 +1,13 @@
-#include <iostream>
+#include "app/app.h"
 
 int main()
 {
-	std::cout << "Hello, World!\n";
-
+	MiniG::MainApp app;
+	if(!app.Init())
+	{
+		LOG_ERROR("App initialization failed!");
+		return 1;
+	}
+	app.Run();
 	return 0;
 }
