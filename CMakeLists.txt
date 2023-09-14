@@ -16,7 +16,7 @@ set(COMMON_DEFINES  "")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 if(NOT DEFINED ${CMAKE_BUILD_TYPE})
-set(CMAKE_BUILD_TYPE Debug)
+	set(CMAKE_BUILD_TYPE Debug)
 endif()
 
 # Output libs and pdbs to 'lib' dir
@@ -35,7 +35,7 @@ if(MSVC)
 	set(BINARY_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/$<1:bin>)
 elseif(UNIX AND NOT APPLE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++2a")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 	set(BINARY_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BINARY_OUTPUT_DIR})
 else()
@@ -47,9 +47,10 @@ include_directories(${EXTERNAL_DIR}/glfw/include)
 include_directories(${EXTERNAL_DIR})
 include_directories(${EXTERNAL_DIR}/imgui)
 include_directories(${EXTERNAL_DIR}/imgui/backends)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Libraries to link
 link_directories(${OUTPUT_LIB_DIR})
 
-add_subdirectory(src)
 add_subdirectory(${EXTERNAL_DIR}/glfw)
+add_subdirectory(src)
