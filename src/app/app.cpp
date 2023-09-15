@@ -49,6 +49,10 @@ void MainApp::Run()
 		glViewport(0, 0, wnd_size.x, wnd_size.y);
 
 		Gui::LayoutManager::DrawLayout();
+		if(m_CurrentGame)
+		{
+			m_CurrentGame->OnUpdate();
+		}
 
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui::Render();
