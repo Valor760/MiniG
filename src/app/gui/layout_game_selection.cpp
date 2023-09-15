@@ -26,7 +26,7 @@ static Button SG_TODO_Button = {
 	.CallbackArgs = {}
 };
 
-static LayoutWindow MM_Buttons_Window = {
+static LayoutWindow SG_Buttons_Window = {
 	.Label     = "Buttons",
 	.Size      = WINDOW_SIZE_FULLSCREEN,
 	.Position  = POSITION_DEFAULT,
@@ -38,7 +38,7 @@ static LayoutWindow MM_Buttons_Window = {
 	},
 };
 
-static LayoutWindow MM_Background_Window = {
+static LayoutWindow SG_Background_Window = {
 	.Label     = "Background",
 	.Size      = WINDOW_SIZE_FULLSCREEN,
 	.Position  = POSITION_DEFAULT,
@@ -49,7 +49,7 @@ static LayoutWindow MM_Background_Window = {
 Layout Layout_SelectGame = {
 	.Name = LayoutName_SelectGame,
 	.WindowStack = {
-		&MM_Background_Window, &MM_Buttons_Window
+		&SG_Background_Window, &SG_Buttons_Window
 	},
 };
 } /* namespace MiniG::Gui */
