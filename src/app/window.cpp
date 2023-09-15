@@ -6,9 +6,9 @@ void GLFW_WindowSizeCallback(GLFWwindow* window, int new_width, int new_height)
 {
 	Window* wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
 	/* TODO: assert wnd != nullptr*/
-	WindowSize prev_size = wnd->GetSize();
+	MGVec2 prev_size = wnd->GetSize();
 	
-	LOG_DEBUG("Window size changed: [prev %dx%d] [new %dx%d]", prev_size.Width, prev_size.Height, new_width, new_height);
+	LOG_DEBUG("Window size changed: [prev %dx%d] [new %dx%d]", prev_size.x, prev_size.y, new_width, new_height);
 
 	wnd->SetSize({new_width, new_height});
 }
@@ -71,15 +71,15 @@ void Window::DeInit()
 	}
 }
 
-WindowSize Window::GetSize() const
+MGVec2<int> Window::GetSize() const
 {
 	return {m_WindowWidth, m_WindowHeight};
 }
 
-void Window::SetSize(WindowSize new_size)
+void Window::SetSize(MGVec2<int> new_size)
 {
-	m_WindowWidth = new_size.Width;
-	m_WindowHeight = new_size.Height;
+	m_WindowWidth = new_size.x;
+	m_WindowHeight = new_size.y;
 }
 
 GLFWwindow* Window::GetWindow() const

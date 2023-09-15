@@ -5,20 +5,14 @@
 
 namespace MiniG
 {
-struct WindowSize
-{
-	int Width;
-	int Height;
-};
-
 class Window
 {
 	public:
 		bool Init(int width, int height);
 		void DeInit();
 
-		WindowSize GetSize() const;
-		void SetSize(WindowSize new_size);
+		MGVec2<int> GetSize() const;
+		void SetSize(MGVec2<int> new_size);
 		GLFWwindow* GetWindow() const;
 
 	private:
