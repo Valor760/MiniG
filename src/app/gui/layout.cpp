@@ -3,10 +3,8 @@
 
 namespace MiniG::Gui
 {
-// static std::vector<Layout*> g_Layouts = {};
-
 const static std::vector<Layout(*)()> g_LayoutFuncs = {
-	GetLayout_MainMenu, 
+	GetLayout_MainMenu, GetLayout_SelectGame
 };
 
 /* Call add all layouts to global array in constructor */
@@ -40,6 +38,7 @@ static bool draw_button(const Button* button)
 
 bool LayoutManager::DrawLayoutImpl()
 {
+	/* TODO: Do we need to store layout in pointers? */
 	for(auto* window : m_CurrentLayout.WindowStack)
 	{
 		ImGui::SetNextWindowPos(window->Position);

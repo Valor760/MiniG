@@ -14,7 +14,7 @@ static Button MM_SinglePlayer_Button = {
 	.Size  = {400, 50},
 	.Position = {600, 250},
 	.pButtonPressedCallback = LayoutManager::SwitchLayout,
-	.CallbackArgs = {  },
+	.CallbackArgs = { LayoutName_SelectGame },
 };
 
 static Button MM_Settings_Button = {
@@ -53,15 +53,10 @@ static LayoutWindow MM_Background_Window = {
 	.Items     = {},
 };
 
-static Layout Layout_MainMenu = {
+Layout Layout_MainMenu = {
 	.Name = LayoutName_MainMenu,
 	.WindowStack = {
 		&MM_Background_Window, &MM_Buttons_Window
 	},
 };
-
-Layout GetLayout_MainMenu()
-{
-	return Layout_MainMenu;
-}
 } /* namespace MiniG::Gui */
