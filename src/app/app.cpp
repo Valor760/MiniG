@@ -1,4 +1,5 @@
 #include "app.h"
+#include "gui/layout.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -44,8 +45,10 @@ void MainApp::Run()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		WindowSize wnd_size = m_Window.GetSize();
-		glViewport(0, 0, wnd_size.Width, wnd_size.Height);
+		MGVec2 wnd_size = m_Window.GetSize();
+		glViewport(0, 0, wnd_size.x, wnd_size.y);
+
+		Gui::LayoutManager::DrawLayout();
 
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui::Render();

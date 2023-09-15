@@ -22,3 +22,14 @@
 
 /* OTHER STUFF */
 namespace fs = std::filesystem;
+
+template <class T>
+struct MGVec2
+{
+	T x; T y;
+	T operator[] (int idx)
+	{
+		assert(idx == 0 || idx == 1);
+		return idx ? x : y;
+	}
+};
