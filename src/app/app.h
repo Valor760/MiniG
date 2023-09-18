@@ -12,9 +12,11 @@ class MainApp
 		static bool Init();
 		static void Run();
 
+		static void LoadGame(const std::string& game_name);
+
 	private:
 		MainApp() = delete;
-		~MainApp();
+		~MainApp() = delete;
 
 	private:
 		/* For now we don't need to have more than 1 window */

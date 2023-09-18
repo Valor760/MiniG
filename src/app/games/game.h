@@ -7,7 +7,7 @@ class Game
 {
 	public:
 		virtual void OnAttach() = 0;
-		virtual void OnUpdate() = 0;
+		virtual void OnUpdate(double dt) = 0;
 		virtual void OnDetach() = 0;
 
 	public:

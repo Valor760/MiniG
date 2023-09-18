@@ -32,7 +32,7 @@ class Tetris : public Game
 		Tetris() : Game() {}
 
 		virtual void OnAttach();
-		virtual void OnUpdate();
+		virtual void OnUpdate(double dt);
 		virtual void OnDetach();
 	
 	public:
