@@ -6,6 +6,7 @@ namespace MiniG::Gui
 {
 static BUTTON_CALLBACK_FUNC(SetWindowShouldClose)
 {
+	MINIG_UNUSED(args);
 	// glfwSetWindowShouldClose(Window::GetWindow(), GLFW_TRUE);
 }
 
