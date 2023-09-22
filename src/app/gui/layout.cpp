@@ -4,7 +4,7 @@
 namespace MiniG::Gui
 {
 const static std::vector<Layout(*)()> g_LayoutFuncs = {
-	GetLayout_MainMenu, GetLayout_SelectGame
+	GetLayout_MainMenu, GetLayout_SelectGame, GetLayout_Tetris
 };
 
 /* Call add all layouts to global array in constructor */

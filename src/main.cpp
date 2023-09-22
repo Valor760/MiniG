@@ -2,12 +2,11 @@
 
 int main()
 {
-	MiniG::MainApp app;
-	if(!app.Init())
+	if(!MiniG::MainApp::Init())
 	{
 		LOG_ERROR("App initialization failed!");
 		return 1;
 	}
-	app.Run();
+	MiniG::MainApp::Run();
 	return 0;
 }
