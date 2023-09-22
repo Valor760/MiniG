@@ -47,6 +47,7 @@ include_directories(${EXTERNAL_DIR}/glfw/include)
 include_directories(${EXTERNAL_DIR})
 include_directories(${EXTERNAL_DIR}/imgui)
 include_directories(${EXTERNAL_DIR}/imgui/backends)
+include_directories(${EXTERNAL_DIR}/stb)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Libraries to link

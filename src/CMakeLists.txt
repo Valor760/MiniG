@@ -33,3 +33,10 @@ else()
 endif()
 
 target_link_libraries(${EXEC} PUBLIC ${OS_LIBS} ${COMMON_LIBS})
+
+# Copy assets to the binary directory
+add_custom_command(
+		TARGET ${EXEC} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E remove_directory ${BINARY_OUTPUT_DIR}/assets
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_PATH} ${BINARY_OUTPUT_DIR}/assets
+)
