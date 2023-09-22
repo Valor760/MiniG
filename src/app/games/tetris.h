@@ -39,6 +39,11 @@ class Tetris : public Game
 		const std::string m_GameName = "Tetris";
 
 	private:
+		void drawField();
+		void drawScoreBoard();
+
+	private:
+		double m_PassedTime = 0.0;
 		/* Tetris field is 10 x 20 */
 		/* TODO: Idk how really handle this, do we need smth more than a bool per cell? */
 		/* Maybe makes sense to have a vector, so when we clear a line we could just remove 1 array from double array? */

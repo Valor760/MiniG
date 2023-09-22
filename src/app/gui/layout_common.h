@@ -10,5 +10,6 @@ namespace MiniG::Gui
 
 EXTERN_GETLAYOUT(MainMenu);
 EXTERN_GETLAYOUT(SelectGame);
+EXTERN_GETLAYOUT(Tetris);
 
 } /* namespace MiniG::Gui */

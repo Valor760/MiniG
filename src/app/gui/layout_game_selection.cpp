@@ -3,11 +3,27 @@
 
 namespace MiniG::Gui
 {
+static LayoutWindow Tetris_Background_Window = {
+	.Label     = "Background",
+	.Size      = WINDOW_SIZE_FULLSCREEN,
+	.Position  = POSITION_DEFAULT,
+	.Flags     = WINDOW_BACKGROUND_FLAGS,
+	.Items     = {},
+};
+
+Layout Layout_Tetris = {
+	.Name = LayoutName_Tetris,
+	.WindowStack = {
+		&Tetris_Background_Window /* Other windows will be manually added in Tetris class */
+	},
+};
+
 static BUTTON_CALLBACK_FUNC(SelectTetris)
 {
 	MINIG_UNUSED(args);
 
 	/* TODO: Need to load some sort of background layout, like background image, buttons and etc. */
+	LayoutManager::SwitchLayout({LayoutName_Tetris});
 	MainApp::LoadGame("Tetris");
 }
 
