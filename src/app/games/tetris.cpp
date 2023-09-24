@@ -12,7 +12,7 @@ namespace MiniG::Games
 	Tetris field should be 432 width and 792 height(the same as GUI).
 	Number of blocks in the field:
 		Width - 10 playfield + 2 on the sides
-		Height - 20 playfield + 2 from top and bottom
+		Height - 20 playfield
 	Each block size is 36;
 
 	Window to the right(scoring, next piece etc):
@@ -27,16 +27,16 @@ const int cBaseWindowHeight = 900;
 const int cPlayFieldWidth = 10;
 const int cPlayFieldHeight = 20;
 
-const int cTetrisGuiWidth = 700;
-const int cTetrisGuiHeight = 792;
-const ImVec2 cTetrisGuiSize = {cTetrisGuiWidth, cTetrisGuiHeight};
-
-const int cTetrisFieldWidth = 432;
-const int cTetrisFieldHeight = 792;
-const ImVec2 cTetrisFieldSize = {cTetrisFieldWidth, cTetrisFieldHeight};
-
 const int cBlockEdgeSize = 36;
 const MGVec2<int> cBlockSize = {cBlockEdgeSize, cBlockEdgeSize};
+
+const int cTetrisGuiWidth = 700;
+const int cTetrisGuiHeight = cBlockEdgeSize * (cPlayFieldHeight);
+const ImVec2 cTetrisGuiSize = {cTetrisGuiWidth, cTetrisGuiHeight};
+
+const int cTetrisFieldWidth = cBlockEdgeSize * (cPlayFieldWidth + 2);
+const int cTetrisFieldHeight = cTetrisGuiHeight;
+const ImVec2 cTetrisFieldSize = {cTetrisFieldWidth, cTetrisFieldHeight};
 
 const int cTetrisScoreBoardWidth = cTetrisGuiWidth - cTetrisFieldWidth;
 const int cTetrisScoreBoardHeight = cTetrisGuiHeight;
@@ -104,8 +104,8 @@ void Tetris::drawField()
 	{
 		const GLuint wall_texture_id = wall_texture.GetID();
 
-		/* Draw left and right walls, but not the bottom line*/
-		for(int i = 0; i < (Consts::cPlayFieldHeight + 1); i++)
+		/* Draw left and right walls */
+		for(int i = 0; i < (Consts::cPlayFieldHeight); i++)
 		{
 			/* Left block */
 			ImGui::SetCursorPos(ImVec2(0, (float)(i * Consts::cBlockEdgeSize)));
@@ -113,13 +113,6 @@ void Tetris::drawField()
 
 			/* Right block */
 			ImGui::SetCursorPos(ImVec2(Consts::cTetrisFieldWidth - Consts::cBlockEdgeSize, (float)(i * Consts::cBlockEdgeSize)));
-			ImGui::Image((void*)(int64_t)wall_texture_id, wall_texture.GetTextureSizeImGui());
-		}
-
-		/* Draw the bottom line */
-		for(int i = 0; i < (Consts::cPlayFieldWidth + 2); i++)
-		{
-			ImGui::SetCursorPos(ImVec2( (float)(i * Consts::cBlockEdgeSize), (float)(Consts::cTetrisFieldHeight - Consts::cBlockEdgeSize) ));
 			ImGui::Image((void*)(int64_t)wall_texture_id, wall_texture.GetTextureSizeImGui());
 		}
 	}
