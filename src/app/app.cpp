@@ -1,6 +1,7 @@
 #include "app.h"
 #include "gui/layout.h"
 #include "games/tetris.h"
+#include "games/TicTacToe.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -14,8 +15,11 @@
 namespace MiniG
 {
 static Games::Tetris GameTetris;
+static Games::TicTacToe GameTicTacToe;
+
 static std::map<std::string, Games::Game*> g_GamesMap = {
 	{"Tetris", &GameTetris},
+	{"TicTacToe", &GameTicTacToe},
 };
 
 void MainApp::LoadGame(const std::string& game_name)

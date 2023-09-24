@@ -43,11 +43,22 @@ static Button SG_Snake_Button = {
 	.CallbackArgs = {}
 };
 
+
+static BUTTON_CALLBACK_FUNC(SelectTicTacToe)
+{
+	MINIG_UNUSED(args);
+
+	/* TODO: Need to load some sort of background layout, like background image, buttons and etc. */
+	LayoutManager::SwitchLayout({LayoutName_Tetris});
+	
+	MainApp::LoadGame("TicTacToe");
+}
+
 static Button SG_TODO_Button = {
 	.Label = "TODO",
 	.Size = {366, 100},
 	.Position = {1032, 425},
-	.pButtonPressedCallback = nullptr,
+	.pButtonPressedCallback = SelectTicTacToe,
 	.CallbackArgs = {}
 };
 
