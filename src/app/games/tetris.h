@@ -7,13 +7,36 @@
 
 namespace MiniG::Games
 {
-class Tetris;
-class Tetramino
+enum class BlockColor
+{
+	ColorRed,
+	ColorGreen,
+	ColorYellow,
+	ColorBlue,
+	ColorPurple,
+
+	ElementCount
+};
+
+enum class BlockTexture
+{
+	Wall,
+	Block,
+
+	ElementCount
+};
+
+struct Block
+{
+	BlockColor Color = BlockColor::ElementCount;
+	bool IsSet = false;
+};
+
+struct Tetramino
 {
 	std::vector<MGVec2<int>> OccupiedCells = {};
-
-	friend Tetris;
 };
+
 /*
 	Possible figures(tetraminos):
 	                          
@@ -45,13 +68,9 @@ class Tetris : public Game
 
 	private:
 		double m_PassedTime = 0.0;
-		GLuint m_TextureID = 0;
 
-		/* Tetris field is 10 x 20 */
-		/* TODO: Idk how really handle this, do we need smth more than a bool per cell? */
-		/* Maybe makes sense to have a vector, so when we clear a line we could just remove 1 array from double array? */
-		/* Also if nothing more than bool is not needed, than we can use int and set appropriate bits to each cell */
-		std::array<std::array<bool, 10>, 20> m_Field = {};
+		/* Tetris field is 10 x 20, each cell will be s */
+		std::array<std::array<Block, 10>, 20> m_Field = {};
 
 		Tetramino m_FallingTetramino;
 };
