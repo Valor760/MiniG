@@ -49,24 +49,12 @@ const ImVec2 cTetrisFieldPos = cTetrisGuiPos;
 const ImVec2 cTetrisScoreBoardPos = {cTetrisGuiXPos + cTetrisFieldWidth, cTetrisGuiYPos};
 } /* namespace Consts */
 
-enum class BlockTexture
-{
-	ColorRed,
-	ColorGreen,
-	ColorYellow,
-	ColorBlue,
-	ColorPurple,
-
-	ElementCount
-};
-
-/* TODO: This won't be needed later, when the actual texture will be loaded, not the test color */
-std::map<BlockTexture, ImVec4> g_BlockColors = {
-	{BlockTexture::ColorRed,     ImVec4(253, 180, 180, 255)},
-	{BlockTexture::ColorGreen,   ImVec4(128, 255, 170, 255)},
-	{BlockTexture::ColorYellow,  ImVec4(255, 255, 153, 255)},
-	{BlockTexture::ColorBlue,    ImVec4( 51, 119, 255, 255)},
-	{BlockTexture::ColorPurple,  ImVec4(223, 128, 255, 255)},
+std::map<BlockColor, ImVec4> g_BlockColors = {
+	{BlockColor::ColorRed,     ImVec4(255,   0,   0, 255)},
+	{BlockColor::ColorGreen,   ImVec4(  0, 255,   0, 255)},
+	{BlockColor::ColorYellow,  ImVec4(255, 255,   0, 255)},
+	{BlockColor::ColorBlue,    ImVec4(  0, 255, 255, 255)},
+	{BlockColor::ColorPurple,  ImVec4(255,   0, 255, 255)},
 };
 static std::map<BlockTexture, Resources::Texture> g_BlockTextures;
 
@@ -86,9 +74,15 @@ static void BeginTetrisGUI()
 	ImGui::StyleColorsDark(nullptr); /* Bring back 'default' style */
 }
 
-/* TODO: Remove */
-const ImVec4 wall_color = ImVec4(242, 242, 242, 255);
-Resources::Texture wall_texture;
+static inline ImVec4 Vec4Norm(const ImVec4& vec4, int norm)
+{
+	return ImVec4(
+			vec4.x / norm,
+			vec4.y / norm,
+			vec4.z / norm,
+			vec4.w / norm
+		);
+}
 
 void Tetris::drawField()
 {
@@ -99,23 +93,31 @@ void Tetris::drawField()
 	ImGui::SetNextWindowSize(Consts::cTetrisFieldSize);
 	ImGui::Begin("Tetris Field", nullptr, WINDOW_BACKGROUND_FLAGS);
 
+	const ImVec2 block_size = ImVec2(Consts::cBlockEdgeSize, Consts::cBlockEdgeSize);
+
 	/* First, draw the border */
-	if(wall_texture.IsReady())
+	if(g_BlockTextures[BlockTexture::Wall].IsReady())
 	{
-		const GLuint wall_texture_id = wall_texture.GetID();
+		const GLuint wall_texture_id = g_BlockTextures[BlockTexture::Wall].GetID();
 
 		/* Draw left and right walls */
 		for(int i = 0; i < (Consts::cPlayFieldHeight); i++)
 		{
 			/* Left block */
 			ImGui::SetCursorPos(ImVec2(0, (float)(i * Consts::cBlockEdgeSize)));
-			ImGui::Image((void*)(int64_t)wall_texture_id, wall_texture.GetTextureSizeImGui());
+			ImGui::Image((void*)(int64_t)wall_texture_id, block_size);
 
 			/* Right block */
 			ImGui::SetCursorPos(ImVec2(Consts::cTetrisFieldWidth - Consts::cBlockEdgeSize, (float)(i * Consts::cBlockEdgeSize)));
-			ImGui::Image((void*)(int64_t)wall_texture_id, wall_texture.GetTextureSizeImGui());
+			ImGui::Image((void*)(int64_t)wall_texture_id, block_size);
 		}
 	}
+
+	if(g_BlockTextures[BlockTexture::Block].IsReady())
+	{
+
+	}
+
 	ImGui::End();
 
 	/* Set style back as it was */
@@ -135,27 +137,26 @@ void Tetris::OnAttach()
 {
 	LOG_DEBUG("Attaching Tetris");
 
-	for(int i = 0; i < static_cast<int>(BlockTexture::ElementCount); i++)
+	g_BlockTextures[BlockTexture::Wall] = Resources::Texture("assets/tetris-wall.png");
+	if(!g_BlockTextures[BlockTexture::Wall].IsReady())
 	{
-		BlockTexture color_idx = static_cast<BlockTexture>(i);
-		g_BlockTextures[color_idx] = Resources::Texture(g_BlockColors[color_idx], Consts::cBlockSize, true);
-		if(!g_BlockTextures[color_idx].IsReady())
-		{
-			LOG_ERROR("Failed to load block texture: Color ID=%d", i);
-		}
+		LOG_ERROR("Couldn't load Wall texture!");
 	}
 
-	/* TODO: Test dummy texture, replace with brick texture later */
-	wall_texture = Resources::Texture(wall_color, Consts::cBlockSize, true);
-	if(!wall_texture.IsReady())
+	g_BlockTextures[BlockTexture::Block] = Resources::Texture("assets/tetris-block.png");
+	if(!g_BlockTextures[BlockTexture::Block].IsReady())
 	{
-		LOG_ERROR("Failed to load wall texture");
+		LOG_ERROR("Couldn't load Block texture!");
 	}
 }
 
 void Tetris::OnDetach()
 {
 	LOG_DEBUG("Detaching Tetris");
+	for(auto [key, val]: g_BlockTextures)
+	{
+		val.Delete();
+	}
 	g_BlockTextures.clear();
 }
 
