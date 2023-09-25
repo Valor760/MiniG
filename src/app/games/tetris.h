@@ -26,23 +26,34 @@ enum class BlockTexture
 	ElementCount
 };
 
-struct Block
+enum class TetraminoShape
 {
-	BlockColor Color = BlockColor::ElementCount;
-	bool IsSet = false;
+	Shape_I, Shape_J, Shape_L,
+	Shape_O, Shape_S, Shape_T,
+	Shape_Z,
+
+	Shape_Count
 };
 
+struct Block
+{
+	bool IsSet = false;
+	BlockColor Color = BlockColor::ElementCount;
+};
+
+/* TODO: How to turn blocks around? */
 struct Tetramino
 {
+	TetraminoShape Shape = TetraminoShape::Shape_Count;
 	std::vector<MGVec2<int>> OccupiedCells = {};
 };
 
 /*
 	Possible figures(tetraminos):
 	                          
+	[]                        
 	[]      []    []      [][]
 	[]      []    []      [][]
-	[]      []    []          
 	[]    [][]    [][]        
 	                          
 	  [][]    [][][]    [][]  
@@ -72,6 +83,9 @@ class Tetris : public Game
 		/* Tetris field is 10 x 20, each cell will be s */
 		std::array<std::array<Block, 10>, 20> m_Field = {};
 
-		Tetramino m_FallingTetramino;
+		std::map<BlockTexture, Resources::Texture> m_BlockTextures;
+
+		std::shared_ptr<Tetramino> m_FallingTetramino = nullptr;
+		std::shared_ptr<Tetramino> m_NextTetramino = nullptr;
 };
 } /* namespace MiniG::Games */

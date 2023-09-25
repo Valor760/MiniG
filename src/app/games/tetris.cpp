@@ -2,6 +2,7 @@
 #include "app/gui/layout.h"
 
 #include <map>
+#include <random>
 
 namespace MiniG::Games
 {
@@ -56,7 +57,16 @@ std::map<BlockColor, ImVec4> g_BlockColors = {
 	{BlockColor::ColorBlue,    ImVec4(  0, 255, 255, 255)},
 	{BlockColor::ColorPurple,  ImVec4(255,   0, 255, 255)},
 };
-static std::map<BlockTexture, Resources::Texture> g_BlockTextures;
+
+std::map<TetraminoShape, std::vector<MGVec2<int>>> g_TetraminoStartingPos = {
+	{TetraminoShape::Shape_I, {{5, 0}, {5, 1}, {5, 2}, {5, 3}}},
+	{TetraminoShape::Shape_J, {{6, 0}, {6, 1}, {6, 2}, {5, 2}}},
+	{TetraminoShape::Shape_L, {{5, 0}, {5, 1}, {5, 2}, {6, 2}}},
+	{TetraminoShape::Shape_O, {{5, 0}, {6, 0}, {5, 1}, {6, 1}}},
+	{TetraminoShape::Shape_S, {{5, 1}, {6, 1}, {6, 0}, {7, 0}}},
+	{TetraminoShape::Shape_T, {{5, 0}, {6, 0}, {7, 0}, {6, 1}}},
+	{TetraminoShape::Shape_Z, {{5, 0}, {6, 0}, {6, 1}, {7, 1}}},
+};
 
 static void BeginTetrisGUI()
 {
@@ -96,26 +106,49 @@ void Tetris::drawField()
 	const ImVec2 block_size = ImVec2(Consts::cBlockEdgeSize, Consts::cBlockEdgeSize);
 
 	/* First, draw the border */
-	if(g_BlockTextures[BlockTexture::Wall].IsReady())
+	if(m_BlockTextures[BlockTexture::Wall].IsReady())
 	{
-		const GLuint wall_texture_id = g_BlockTextures[BlockTexture::Wall].GetID();
+		const GLuint wall_texture_id = m_BlockTextures[BlockTexture::Wall].GetID();
 
 		/* Draw left and right walls */
 		for(int i = 0; i < (Consts::cPlayFieldHeight); i++)
 		{
 			/* Left block */
-			ImGui::SetCursorPos(ImVec2(0, (float)(i * Consts::cBlockEdgeSize)));
+			ImGui::SetCursorPosX(0);
+			ImGui::SetCursorPosY((float)(i * Consts::cBlockEdgeSize));
 			ImGui::Image((void*)(int64_t)wall_texture_id, block_size);
 
 			/* Right block */
-			ImGui::SetCursorPos(ImVec2(Consts::cTetrisFieldWidth - Consts::cBlockEdgeSize, (float)(i * Consts::cBlockEdgeSize)));
+			ImGui::SetCursorPosX(Consts::cTetrisFieldWidth - Consts::cBlockEdgeSize);
+			ImGui::SetCursorPosY((float)(i * Consts::cBlockEdgeSize));
 			ImGui::Image((void*)(int64_t)wall_texture_id, block_size);
 		}
 	}
 
-	if(g_BlockTextures[BlockTexture::Block].IsReady())
+	if(m_BlockTextures[BlockTexture::Block].IsReady())
 	{
+		const GLuint block_texture_id = m_BlockTextures[BlockTexture::Block].GetID();
 
+		/* Rows */
+		for(int i = 0; i < m_Field.size(); i++)
+		{
+			/* Individual block */
+			for(int j = 0; j < m_Field[i].size(); j++)
+			{
+				Block& block = m_Field[i][j];
+				if(!block.IsSet)
+				{
+					continue;
+				}
+
+				ImGui::SetCursorPosX((float)(j * Consts::cBlockEdgeSize));
+				ImGui::SetCursorPosY((float)(i * Consts::cBlockEdgeSize));
+				ImGui::Image((void*)(int64_t)block_texture_id, block_size,
+						{0, 0}, {1, 1},
+						Vec4Norm(g_BlockColors[block.Color], 255)
+					);
+			}
+		}
 	}
 
 	ImGui::End();
@@ -133,31 +166,38 @@ void Tetris::drawScoreBoard()
 	ImGui::End();
 }
 
+static std::shared_ptr<Tetramino> GenerateTetramino()
+{
+
+}
+
 void Tetris::OnAttach()
 {
 	LOG_DEBUG("Attaching Tetris");
 
-	g_BlockTextures[BlockTexture::Wall] = Resources::Texture("assets/tetris-wall.png");
-	if(!g_BlockTextures[BlockTexture::Wall].IsReady())
+	m_BlockTextures[BlockTexture::Wall] = Resources::Texture("assets/tetris-wall.png");
+	if(!m_BlockTextures[BlockTexture::Wall].IsReady())
 	{
 		LOG_ERROR("Couldn't load Wall texture!");
 	}
 
-	g_BlockTextures[BlockTexture::Block] = Resources::Texture("assets/tetris-block.png");
-	if(!g_BlockTextures[BlockTexture::Block].IsReady())
+	m_BlockTextures[BlockTexture::Block] = Resources::Texture("assets/tetris-block.png");
+	if(!m_BlockTextures[BlockTexture::Block].IsReady())
 	{
 		LOG_ERROR("Couldn't load Block texture!");
 	}
+
+
 }
 
 void Tetris::OnDetach()
 {
 	LOG_DEBUG("Detaching Tetris");
-	for(auto [key, val]: g_BlockTextures)
+	for(auto [key, val]: m_BlockTextures)
 	{
 		val.Delete();
 	}
-	g_BlockTextures.clear();
+	m_BlockTextures.clear();
 }
 
 void Tetris::OnUpdate(double dt)
