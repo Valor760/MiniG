@@ -288,11 +288,27 @@ void Tetris::OnAttach()
 void Tetris::OnDetach()
 {
 	LOG_DEBUG("Detaching Tetris");
+
+	/* Release all textures */
 	for(auto [key, val]: m_BlockTextures)
 	{
 		val.Delete();
 	}
 	m_BlockTextures.clear();
+
+	m_FallingTetramino.reset();
+	m_NextTetramino.reset();
+
+	for(auto& field_row : m_Field)
+	{
+		for(auto& block : field_row)
+		{
+			block.IsSet = false;
+			block.Color = BlockColor::ElementCount;
+		}
+	}
+
+	m_PassedTime = 0.0;
 }
 
 void Tetris::OnUpdate(double dt)
