@@ -60,7 +60,7 @@ std::map<BlockColor, ImVec4> g_BlockColors = {
 };
 
 std::map<TetraminoShape, std::vector<MGVec2<int>>> g_TetraminoStartingPos = {
-	{TetraminoShape::Shape_I, {{5, 0}, {5, 1}, {5, 2}, {5, 3}}},
+	{TetraminoShape::Shape_I, {{4, 0}, {4, 1}, {4, 2}, {4, 3}}},
 	{TetraminoShape::Shape_J, {{6, 0}, {6, 1}, {6, 2}, {5, 2}}},
 	{TetraminoShape::Shape_L, {{5, 0}, {5, 1}, {5, 2}, {6, 2}}},
 	{TetraminoShape::Shape_O, {{5, 0}, {6, 0}, {5, 1}, {6, 1}}},
@@ -146,7 +146,7 @@ void Tetris::drawField()
 					continue;
 				}
 
-				ImGui::SetCursorPosX((float)(j * Consts::cBlockEdgeSize));
+				/* X offsets by 1 because of walls */
 				ImGui::SetCursorPosY((float)(i * Consts::cBlockEdgeSize));
 				ImGui::Image((void*)(int64_t)block_texture_id, block_size,
 						{0, 0}, {1, 1},
@@ -158,7 +158,7 @@ void Tetris::drawField()
 		/* Draw the falling tetramino */
 		for(const auto& block_coords : m_FallingTetramino->OccupiedCells)
 		{
-			ImGui::SetCursorPosX((float)(block_coords.x * Consts::cBlockEdgeSize));
+			ImGui::SetCursorPosX((float)((block_coords.x + 1) * Consts::cBlockEdgeSize));
 			ImGui::SetCursorPosY((float)(block_coords.y * Consts::cBlockEdgeSize));
 			ImGui::Image((void*)(int64_t)block_texture_id, block_size,
 					{0, 0}, {1, 1},
