@@ -88,7 +88,7 @@ class Tetris : public Game
 
 		std::map<BlockTexture, Resources::Texture> m_BlockTextures;
 
-		Tetramino* m_FallingTetramino = nullptr;
-		Tetramino* m_NextTetramino = nullptr;
+		std::shared_ptr<Tetramino> m_FallingTetramino = nullptr;
+		std::shared_ptr<Tetramino> m_NextTetramino = nullptr;
 };
 } /* namespace MiniG::Games */

@@ -182,7 +182,7 @@ void Tetris::drawScoreBoard()
 	ImGui::End();
 }
 
-static Tetramino* GenerateTetramino()
+static std::shared_ptr<Tetramino> GenerateTetramino()
 {
 	/* Reinit random generator on every tetramino creation */
 	std::mt19937 gen((std::random_device())());
@@ -190,7 +190,7 @@ static Tetramino* GenerateTetramino()
 	TetraminoShape shape = (TetraminoShape)g_ShapeRandGen(gen);
 	BlockColor color = (BlockColor)g_ColorRandGen(gen);
 
-	Tetramino* new_tetramino = new Tetramino();
+	std::shared_ptr<Tetramino> new_tetramino = std::make_shared<Tetramino>();
 	new_tetramino->Shape = shape;
 	new_tetramino->OccupiedCells = g_TetraminoStartingPos[shape];
 	new_tetramino->Color = color;
@@ -260,7 +260,6 @@ void Tetris::TimeMoveFallingTetramino()
 			field_block.IsSet = true;
 		}
 
-		delete m_FallingTetramino;
 		m_FallingTetramino = m_NextTetramino;
 		m_NextTetramino = GenerateTetramino();
 	}
@@ -282,16 +281,7 @@ void Tetris::OnAttach()
 		LOG_ERROR("Couldn't load Block texture!");
 	}
 
-	if(m_FallingTetramino)
-	{
-		delete m_FallingTetramino;
-	}
 	m_FallingTetramino = GenerateTetramino();
-
-	if(m_NextTetramino)
-	{
-		delete m_NextTetramino;
-	}
 	m_NextTetramino = GenerateTetramino();
 }
 
