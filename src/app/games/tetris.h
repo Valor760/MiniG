@@ -50,6 +50,12 @@ struct Tetramino
 	BlockColor Color = BlockColor::ElementCount;
 };
 
+enum MoveAction
+{
+	ToLeft = -1,
+	ToRight = 1,
+};
+
 /*
 	Possible figures(tetraminos):
 	                          
@@ -78,12 +84,19 @@ class Tetris : public Game
 	private:
 		void drawField();
 		void drawScoreBoard();
+		void ProcessInput();
+
+		std::vector<MGVec2<int>> getDownMostCoords();
+		void applyTetraminoToField();
 		void TimeMoveFallingTetramino();
+
+		void MoveFallingTetraminoToSide(int where);
+		void DropFallingTetramino();
 
 	private:
 		double m_PassedTime = 0.0;
 
-		/* Tetris field is 10 x 20, each cell will be s */
+		/* Tetris field is 10 x 20 */
 		std::array<std::array<Block, 10>, 20> m_Field = {};
 
 		std::map<BlockTexture, Resources::Texture> m_BlockTextures;

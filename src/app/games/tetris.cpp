@@ -48,7 +48,8 @@ const ImVec2 cTetrisGuiPos = {cTetrisGuiXPos, cTetrisGuiYPos};
 const ImVec2 cTetrisFieldPos = cTetrisGuiPos;
 const ImVec2 cTetrisScoreBoardPos = {cTetrisGuiXPos + cTetrisFieldWidth, cTetrisGuiYPos};
 
-const double cFallTimeDelaySec = 1.0;
+// const double cFallTimeDelaySec = 1.0;
+const double cFallTimeDelaySec = 0.3;
 } /* namespace Consts */
 
 std::map<BlockColor, ImVec4> g_BlockColors = {
@@ -61,12 +62,12 @@ std::map<BlockColor, ImVec4> g_BlockColors = {
 
 std::map<TetraminoShape, std::vector<MGVec2<int>>> g_TetraminoStartingPos = {
 	{TetraminoShape::Shape_I, {{4, 0}, {4, 1}, {4, 2}, {4, 3}}},
-	{TetraminoShape::Shape_J, {{6, 0}, {6, 1}, {6, 2}, {5, 2}}},
-	{TetraminoShape::Shape_L, {{5, 0}, {5, 1}, {5, 2}, {6, 2}}},
-	{TetraminoShape::Shape_O, {{5, 0}, {6, 0}, {5, 1}, {6, 1}}},
-	{TetraminoShape::Shape_S, {{5, 1}, {6, 1}, {6, 0}, {7, 0}}},
-	{TetraminoShape::Shape_T, {{5, 0}, {6, 0}, {7, 0}, {6, 1}}},
-	{TetraminoShape::Shape_Z, {{5, 0}, {6, 0}, {6, 1}, {7, 1}}},
+	{TetraminoShape::Shape_J, {{5, 0}, {5, 1}, {5, 2}, {4, 2}}},
+	{TetraminoShape::Shape_L, {{4, 0}, {4, 1}, {4, 2}, {5, 2}}},
+	{TetraminoShape::Shape_O, {{4, 0}, {5, 0}, {4, 1}, {5, 1}}},
+	{TetraminoShape::Shape_S, {{4, 1}, {5, 1}, {5, 0}, {6, 0}}},
+	{TetraminoShape::Shape_T, {{4, 0}, {5, 0}, {6, 0}, {5, 1}}},
+	{TetraminoShape::Shape_Z, {{4, 0}, {5, 0}, {5, 1}, {6, 1}}},
 };
 
 std::uniform_int_distribution<int> g_ShapeRandGen((int)TetraminoShape::Shape_I, (int)TetraminoShape::Shape_Z);
@@ -147,6 +148,7 @@ void Tetris::drawField()
 				}
 
 				/* X offsets by 1 because of walls */
+				ImGui::SetCursorPosX((float)((j + 1) * Consts::cBlockEdgeSize));
 				ImGui::SetCursorPosY((float)(i * Consts::cBlockEdgeSize));
 				ImGui::Image((void*)(int64_t)block_texture_id, block_size,
 						{0, 0}, {1, 1},
@@ -158,6 +160,7 @@ void Tetris::drawField()
 		/* Draw the falling tetramino */
 		for(const auto& block_coords : m_FallingTetramino->OccupiedCells)
 		{
+			/* X offsets by 1 because of walls */
 			ImGui::SetCursorPosX((float)((block_coords.x + 1) * Consts::cBlockEdgeSize));
 			ImGui::SetCursorPosY((float)(block_coords.y * Consts::cBlockEdgeSize));
 			ImGui::Image((void*)(int64_t)block_texture_id, block_size,
@@ -198,17 +201,8 @@ static std::shared_ptr<Tetramino> GenerateTetramino()
 	return new_tetramino;
 }
 
-void Tetris::TimeMoveFallingTetramino()
+std::vector<MGVec2<int>> Tetris::getDownMostCoords()
 {
-	if(m_PassedTime < Consts::cFallTimeDelaySec)
-	{
-		return;
-	}
-
-	m_PassedTime = 0.0;
-
-	/* Check if the tetramino can be moved further */
-	bool canBeMoved = true;
 	std::vector<MGVec2<int>> downmost_coords;
 
 	/* Find downmost coordinates that are exposed to other cells */
@@ -230,6 +224,30 @@ void Tetris::TimeMoveFallingTetramino()
 		}
 	}
 
+	return downmost_coords;
+}
+
+void Tetris::applyTetraminoToField()
+{
+	/* Apply current blocks to field */
+	for(auto& block_coords : m_FallingTetramino->OccupiedCells)
+	{
+		Block& field_block = m_Field[block_coords.y][block_coords.x];
+		assert(!field_block.IsSet);
+		field_block.Color = m_FallingTetramino->Color;
+		field_block.IsSet = true;
+	}
+
+	m_FallingTetramino = m_NextTetramino;
+	m_NextTetramino = GenerateTetramino();
+}
+
+void Tetris::TimeMoveFallingTetramino()
+{
+	/* Check if the tetramino can be moved further */
+	bool canBeMoved = true;
+	std::vector<MGVec2<int>> downmost_coords = getDownMostCoords();
+
 	/* Check with field, that movement is allowed */
 	for(const auto& block_coords : downmost_coords)
 	{
@@ -250,18 +268,156 @@ void Tetris::TimeMoveFallingTetramino()
 	}
 	else
 	{
-		LOG_DEBUG("Current tetramino cannot be moved further");
-		/* Apply current blocks to field */
-		for(auto& block_coords : m_FallingTetramino->OccupiedCells)
+		LOG_DEBUG("Current tetramino cannot be moved further down");
+		applyTetraminoToField();
+	}
+}
+
+void Tetris::MoveFallingTetraminoToSide(int where)
+{
+	/* Check if the tetramino can be moved further */
+	bool canBeMoved = true;
+	std::vector<MGVec2<int>> leftmost_coords;
+
+	/* Find leftmost coordinates that are exposed to other cells */
+	for(const auto& curr_block_coords : m_FallingTetramino->OccupiedCells)
+	{
+		for(const auto& next_block_coords : m_FallingTetramino->OccupiedCells)
 		{
-			Block& field_block = m_Field[block_coords.y][block_coords.x];
-			assert(!field_block.IsSet);
-			field_block.Color = m_FallingTetramino->Color;
-			field_block.IsSet = true;
+			if(curr_block_coords.y != next_block_coords.y)
+			{
+				continue;
+			}
+
+			if((curr_block_coords.x + where) == next_block_coords.x)
+			{
+				continue;
+			}
+
+			leftmost_coords.push_back(curr_block_coords);
+		}
+	}
+
+	/* Check with field, that movement is allowed */
+	for(const auto& block_coords : leftmost_coords)
+	{
+		if((block_coords.x + where) < 0 || (block_coords.x + where) >= m_Field[0].size())
+		{
+			canBeMoved = false;
+			break;
 		}
 
-		m_FallingTetramino = m_NextTetramino;
-		m_NextTetramino = GenerateTetramino();
+		if(m_Field[block_coords.y][block_coords.x + where].IsSet)
+		{
+			canBeMoved = false;
+			break;
+		}
+	}
+
+	if(canBeMoved)
+	{
+		LOG_DEBUG("Moving tetramino to the %s", where == MoveAction::ToLeft ? "left" : "right");
+		for(auto& block_coords : m_FallingTetramino->OccupiedCells)
+		{
+			block_coords.x += where;
+		}
+	}
+}
+
+void Tetris::DropFallingTetramino()
+{
+	std::vector<MGVec2<int>> downmost_coords = getDownMostCoords();
+
+	/* Find the nearest occupied block on the field and calculate minimum difference */
+	int nearest_field_y_diff = 9999; /* Dummy value */
+	for(const auto& block_coord : downmost_coords)
+	{
+		for(int i = block_coord.y + 1; i < m_Field.size(); i++)
+		{
+			if(!m_Field[i][block_coord.x].IsSet)
+			{
+				continue;
+			}
+
+			int coord_diff = i - block_coord.y - 1;
+			if(coord_diff < nearest_field_y_diff)
+			{
+				nearest_field_y_diff = coord_diff;
+			}
+		}
+	}
+
+	/* No blocks are set underneith. Find lowest point of the tetramino */
+	if(nearest_field_y_diff >= m_Field.size())
+	{
+		/* "Lowest" is a little wrong term. In our case Bottom line is y = 20 */
+		int lowest_y_point = -1;
+		for(const auto& block_coord : downmost_coords)
+		{
+			if(block_coord.y > lowest_y_point)
+			{
+				lowest_y_point = block_coord.y;
+			}
+		}
+
+		assert(lowest_y_point < m_Field.size());
+
+		nearest_field_y_diff = (int)m_Field.size() - 1 - lowest_y_point;
+	}
+
+	/* Move falling tetramino down by calculated Y diff */
+	for(auto& block_coord : m_FallingTetramino->OccupiedCells)
+	{
+		block_coord.y += nearest_field_y_diff;
+	}
+
+	applyTetraminoToField();
+}
+
+void Tetris::ProcessInput()
+{
+	/* TODO: Let imgui handle the repeat rate if the button is hold */
+	// ImGuiIO& io = ImGui::GetIO();
+	// io.KeyRepeatRate = 0.5f;
+
+	bool moveLeft = false;
+	bool moveRight = false;
+
+	/* A or arrow left */
+	if(ImGui::IsKeyPressed(ImGuiKey_A) || ImGui::IsKeyPressed(ImGuiKey_LeftArrow))
+	{
+		moveLeft = true;
+	}
+
+	/* D or arrow right */
+	if(ImGui::IsKeyPressed(ImGuiKey_D) || ImGui::IsKeyPressed(ImGuiKey_RightArrow))
+	{
+		moveRight = true;
+	}
+
+	/* S or arrow down */
+	if(ImGui::IsKeyPressed(ImGuiKey_S, false) || ImGui::IsKeyPressed(ImGuiKey_DownArrow, false))
+	{
+		DropFallingTetramino();
+
+		/* Tetramino has fallen apply it to the field */
+		// TimeMoveFallingTetramino();
+		m_PassedTime = 0.0;
+		return;
+	}
+
+	if(moveLeft && moveRight)
+	{
+		/* Both buttons are pressed, do nothing */
+		return;
+	}
+	else if(moveLeft && !moveRight)
+	{
+		MoveFallingTetraminoToSide(MoveAction::ToLeft);
+	}
+	else if(!moveLeft && moveRight)
+	{
+		MoveFallingTetraminoToSide(MoveAction::ToRight);
 	}
 }
 
@@ -315,7 +471,13 @@ void Tetris::OnUpdate(double dt)
 {
 	m_PassedTime += dt;
 
-	TimeMoveFallingTetramino();
+	ProcessInput();
+
+	if(m_PassedTime >= Consts::cFallTimeDelaySec)
+	{
+		m_PassedTime = 0.0;
+		TimeMoveFallingTetramino();
+	}
 
 	/* We will have one big window for all GUI elements for Tetris */
 	BeginTetrisGUI();
