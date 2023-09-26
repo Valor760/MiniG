@@ -421,6 +421,45 @@ void Tetris::ProcessInput()
 	}
 }
 
+void Tetris::checkAndRemoveLines()
+{
+	int lines_removed = 0;
+
+	for(int i = 0; i < m_Field.size(); i++)
+	{
+		/* Check for line completeness */
+		bool is_line_complete = true;
+		for(const auto& block : m_Field[i])
+		{
+			if(!block.IsSet)
+			{
+				is_line_complete = false;
+				break;
+			}
+		}
+
+		if(!is_line_complete)
+		{
+			continue;
+		}
+
+		/* TODO: Add animation in the future if possible */
+		for(int j = i; j > 0; j--)
+		{
+			m_Field[j] = m_Field[j - 1];
+		}
+		m_Field[0] = std::array<Block, 10>{};
+
+		lines_removed++;
+		i--;
+	}
+
+	if(lines_removed > 0)
+	{
+		m_Score += lines_removed * lines_removed * 100;
+	}
+}
+
 void Tetris::OnAttach()
 {
 	LOG_DEBUG("Attaching Tetris");
@@ -478,6 +517,8 @@ void Tetris::OnUpdate(double dt)
 		m_PassedTime = 0.0;
 		TimeMoveFallingTetramino();
 	}
+
+	checkAndRemoveLines();
 
 	/* We will have one big window for all GUI elements for Tetris */
 	BeginTetrisGUI();

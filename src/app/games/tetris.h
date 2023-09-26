@@ -82,6 +82,7 @@ class Tetris : public Game
 		const std::string m_GameName = "Tetris";
 
 	private:
+		/* TODO: Refactor names to start from lowercase for private functions */
 		void drawField();
 		void drawScoreBoard();
 		void ProcessInput();
@@ -93,8 +94,11 @@ class Tetris : public Game
 		void MoveFallingTetraminoToSide(int where);
 		void DropFallingTetramino();
 
+		void checkAndRemoveLines();
+
 	private:
 		double m_PassedTime = 0.0;
+		int64_t m_Score = 0;
 
 		/* Tetris field is 10 x 20 */
 		std::array<std::array<Block, 10>, 20> m_Field = {};
