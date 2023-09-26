@@ -48,8 +48,7 @@ const ImVec2 cTetrisGuiPos = {cTetrisGuiXPos, cTetrisGuiYPos};
 const ImVec2 cTetrisFieldPos = cTetrisGuiPos;
 const ImVec2 cTetrisScoreBoardPos = {cTetrisGuiXPos + cTetrisFieldWidth, cTetrisGuiYPos};
 
-// const double cFallTimeDelaySec = 1.0;
-const double cFallTimeDelaySec = 0.3;
+const double cFallTimeDelaySec = 1.0;
 } /* namespace Consts */
 
 std::map<BlockColor, ImVec4> g_BlockColors = {
@@ -396,7 +395,14 @@ void Tetris::ProcessInput()
 	}
 
 	/* S or arrow down */
-	if(ImGui::IsKeyPressed(ImGuiKey_S, false) || ImGui::IsKeyPressed(ImGuiKey_DownArrow, false))
+	if(ImGui::IsKeyPressed(ImGuiKey_S) || ImGui::IsKeyPressed(ImGuiKey_DownArrow))
+	{
+		/* Increase passed time by a little bit to quicken the fall */
+		m_PassedTime += Consts::cFallTimeDelaySec * 0.75;
+	}
+
+	/* Drop tetramino on Space */
+	if(ImGui::IsKeyPressed(ImGuiKey_Space, false))
 	{
 		DropFallingTetramino();
 
