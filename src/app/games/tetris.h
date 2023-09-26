@@ -4,6 +4,7 @@
 #include "app/resources/texture.h"
 
 #include <array>
+#include <map>
 
 namespace MiniG::Games
 {
@@ -46,6 +47,7 @@ struct Tetramino
 {
 	TetraminoShape Shape = TetraminoShape::Shape_Count;
 	std::vector<MGVec2<int>> OccupiedCells = {};
+	BlockColor Color = BlockColor::ElementCount;
 };
 
 /*
@@ -76,6 +78,7 @@ class Tetris : public Game
 	private:
 		void drawField();
 		void drawScoreBoard();
+		void TimeMoveFallingTetramino();
 
 	private:
 		double m_PassedTime = 0.0;
@@ -85,7 +88,7 @@ class Tetris : public Game
 
 		std::map<BlockTexture, Resources::Texture> m_BlockTextures;
 
-		std::shared_ptr<Tetramino> m_FallingTetramino = nullptr;
-		std::shared_ptr<Tetramino> m_NextTetramino = nullptr;
+		Tetramino* m_FallingTetramino = nullptr;
+		Tetramino* m_NextTetramino = nullptr;
 };
 } /* namespace MiniG::Games */

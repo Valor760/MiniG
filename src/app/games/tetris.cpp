@@ -1,7 +1,6 @@
 #include "tetris.h"
 #include "app/gui/layout.h"
 
-#include <map>
 #include <random>
 
 namespace MiniG::Games
@@ -48,6 +47,8 @@ const float cTetrisGuiYPos = (cBaseWindowHeight - cTetrisGuiHeight) / 2.f;
 const ImVec2 cTetrisGuiPos = {cTetrisGuiXPos, cTetrisGuiYPos};
 const ImVec2 cTetrisFieldPos = cTetrisGuiPos;
 const ImVec2 cTetrisScoreBoardPos = {cTetrisGuiXPos + cTetrisFieldWidth, cTetrisGuiYPos};
+
+const double cFallTimeDelaySec = 1.0;
 } /* namespace Consts */
 
 std::map<BlockColor, ImVec4> g_BlockColors = {
@@ -67,6 +68,9 @@ std::map<TetraminoShape, std::vector<MGVec2<int>>> g_TetraminoStartingPos = {
 	{TetraminoShape::Shape_T, {{5, 0}, {6, 0}, {7, 0}, {6, 1}}},
 	{TetraminoShape::Shape_Z, {{5, 0}, {6, 0}, {6, 1}, {7, 1}}},
 };
+
+std::uniform_int_distribution<int> g_ShapeRandGen((int)TetraminoShape::Shape_I, (int)TetraminoShape::Shape_Z);
+std::uniform_int_distribution<int> g_ColorRandGen((int)BlockColor::ColorRed, (int)BlockColor::ColorPurple);
 
 static void BeginTetrisGUI()
 {
@@ -111,7 +115,7 @@ void Tetris::drawField()
 		const GLuint wall_texture_id = m_BlockTextures[BlockTexture::Wall].GetID();
 
 		/* Draw left and right walls */
-		for(int i = 0; i < (Consts::cPlayFieldHeight); i++)
+		for(int i = 0; i < Consts::cPlayFieldHeight; i++)
 		{
 			/* Left block */
 			ImGui::SetCursorPosX(0);
@@ -129,6 +133,7 @@ void Tetris::drawField()
 	{
 		const GLuint block_texture_id = m_BlockTextures[BlockTexture::Block].GetID();
 
+		/* Draw the field */
 		/* Rows */
 		for(int i = 0; i < m_Field.size(); i++)
 		{
@@ -149,6 +154,17 @@ void Tetris::drawField()
 					);
 			}
 		}
+
+		/* Draw the falling tetramino */
+		for(const auto& block_coords : m_FallingTetramino->OccupiedCells)
+		{
+			ImGui::SetCursorPosX((float)(block_coords.x * Consts::cBlockEdgeSize));
+			ImGui::SetCursorPosY((float)(block_coords.y * Consts::cBlockEdgeSize));
+			ImGui::Image((void*)(int64_t)block_texture_id, block_size,
+					{0, 0}, {1, 1},
+					Vec4Norm(g_BlockColors[m_FallingTetramino->Color], 255)
+				);
+		}
 	}
 
 	ImGui::End();
@@ -166,9 +182,88 @@ void Tetris::drawScoreBoard()
 	ImGui::End();
 }
 
-static std::shared_ptr<Tetramino> GenerateTetramino()
+static Tetramino* GenerateTetramino()
 {
+	/* Reinit random generator on every tetramino creation */
+	std::mt19937 gen((std::random_device())());
 
+	TetraminoShape shape = (TetraminoShape)g_ShapeRandGen(gen);
+	BlockColor color = (BlockColor)g_ColorRandGen(gen);
+
+	Tetramino* new_tetramino = new Tetramino();
+	new_tetramino->Shape = shape;
+	new_tetramino->OccupiedCells = g_TetraminoStartingPos[shape];
+	new_tetramino->Color = color;
+
+	return new_tetramino;
+}
+
+void Tetris::TimeMoveFallingTetramino()
+{
+	if(m_PassedTime < Consts::cFallTimeDelaySec)
+	{
+		return;
+	}
+
+	m_PassedTime = 0.0;
+
+	/* Check if the tetramino can be moved further */
+	bool canBeMoved = true;
+	std::vector<MGVec2<int>> downmost_coords;
+
+	/* Find downmost coordinates that are exposed to other cells */
+	for(const auto& curr_block_coords : m_FallingTetramino->OccupiedCells)
+	{
+		for(const auto& next_block_coords : m_FallingTetramino->OccupiedCells)
+		{
+			if(curr_block_coords.x != next_block_coords.x)
+			{
+				continue;
+			}
+
+			if((curr_block_coords.y + 1) == next_block_coords.y)
+			{
+				continue;
+			}
+
+			downmost_coords.push_back(curr_block_coords);
+		}
+	}
+
+	/* Check with field, that movement is allowed */
+	for(const auto& block_coords : downmost_coords)
+	{
+		if((block_coords.y + 1) >= m_Field.size() || m_Field[block_coords.y + 1][block_coords.x].IsSet)
+		{
+			canBeMoved = false;
+			break;
+		}
+	}
+
+	if(canBeMoved)
+	{
+		LOG_DEBUG("Moving tetramino down");
+		for(auto& block_coords : m_FallingTetramino->OccupiedCells)
+		{
+			block_coords.y += 1;
+		}
+	}
+	else
+	{
+		LOG_DEBUG("Current tetramino cannot be moved further");
+		/* Apply current blocks to field */
+		for(auto& block_coords : m_FallingTetramino->OccupiedCells)
+		{
+			Block& field_block = m_Field[block_coords.y][block_coords.x];
+			assert(!field_block.IsSet);
+			field_block.Color = m_FallingTetramino->Color;
+			field_block.IsSet = true;
+		}
+
+		delete m_FallingTetramino;
+		m_FallingTetramino = m_NextTetramino;
+		m_NextTetramino = GenerateTetramino();
+	}
 }
 
 void Tetris::OnAttach()
@@ -187,7 +282,17 @@ void Tetris::OnAttach()
 		LOG_ERROR("Couldn't load Block texture!");
 	}
 
+	if(m_FallingTetramino)
+	{
+		delete m_FallingTetramino;
+	}
+	m_FallingTetramino = GenerateTetramino();
 
+	if(m_NextTetramino)
+	{
+		delete m_NextTetramino;
+	}
+	m_NextTetramino = GenerateTetramino();
 }
 
 void Tetris::OnDetach()
@@ -203,6 +308,8 @@ void Tetris::OnDetach()
 void Tetris::OnUpdate(double dt)
 {
 	m_PassedTime += dt;
+
+	TimeMoveFallingTetramino();
 
 	/* We will have one big window for all GUI elements for Tetris */
 	BeginTetrisGUI();
