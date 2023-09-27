@@ -2,6 +2,7 @@
 #include "app/gui/layout.h"
 
 #include <random>
+#include <algorithm>
 
 namespace MiniG::Games
 {
@@ -200,32 +201,6 @@ static std::shared_ptr<Tetramino> GenerateTetramino()
 	return new_tetramino;
 }
 
-std::vector<MGVec2<int>> Tetris::getDownMostCoords()
-{
-	std::vector<MGVec2<int>> downmost_coords;
-
-	/* Find downmost coordinates that are exposed to other cells */
-	for(const auto& curr_block_coords : m_FallingTetramino->OccupiedCells)
-	{
-		for(const auto& next_block_coords : m_FallingTetramino->OccupiedCells)
-		{
-			if(curr_block_coords.x != next_block_coords.x)
-			{
-				continue;
-			}
-
-			if((curr_block_coords.y + 1) == next_block_coords.y)
-			{
-				continue;
-			}
-
-			downmost_coords.push_back(curr_block_coords);
-		}
-	}
-
-	return downmost_coords;
-}
-
 void Tetris::applyTetraminoToField()
 {
 	/* Apply current blocks to field */
@@ -245,7 +220,7 @@ void Tetris::TimeMoveFallingTetramino()
 {
 	/* Check if the tetramino can be moved further */
 	bool canBeMoved = true;
-	std::vector<MGVec2<int>> downmost_coords = getDownMostCoords();
+	std::vector<MGVec2<int>> downmost_coords = m_FallingTetramino->OccupiedCells;
 
 	/* Check with field, that movement is allowed */
 	for(const auto& block_coords : downmost_coords)
@@ -276,29 +251,10 @@ void Tetris::MoveFallingTetraminoToSide(int where)
 {
 	/* Check if the tetramino can be moved further */
 	bool canBeMoved = true;
-	std::vector<MGVec2<int>> leftmost_coords;
-
-	/* Find leftmost coordinates that are exposed to other cells */
-	for(const auto& curr_block_coords : m_FallingTetramino->OccupiedCells)
-	{
-		for(const auto& next_block_coords : m_FallingTetramino->OccupiedCells)
-		{
-			if(curr_block_coords.y != next_block_coords.y)
-			{
-				continue;
-			}
-
-			if((curr_block_coords.x + where) == next_block_coords.x)
-			{
-				continue;
-			}
-
-			leftmost_coords.push_back(curr_block_coords);
-		}
-	}
+	std::vector<MGVec2<int>> sidemost_coords = m_FallingTetramino->OccupiedCells;
 
 	/* Check with field, that movement is allowed */
-	for(const auto& block_coords : leftmost_coords)
+	for(const auto& block_coords : sidemost_coords)
 	{
 		if((block_coords.x + where) < 0 || (block_coords.x + where) >= m_Field[0].size())
 		{
@@ -325,7 +281,7 @@ void Tetris::MoveFallingTetraminoToSide(int where)
 
 void Tetris::DropFallingTetramino()
 {
-	std::vector<MGVec2<int>> downmost_coords = getDownMostCoords();
+	std::vector<MGVec2<int>> downmost_coords = m_FallingTetramino->OccupiedCells;
 
 	/* Find the nearest occupied block on the field and calculate minimum difference */
 	int nearest_field_y_diff = 9999; /* Dummy value */
@@ -407,7 +363,6 @@ void Tetris::ProcessInput()
 		DropFallingTetramino();
 
 		/* Tetramino has fallen apply it to the field */
-		// TimeMoveFallingTetramino();
 		m_PassedTime = 0.0;
 		return;
 	}

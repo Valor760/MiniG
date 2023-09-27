@@ -87,7 +87,6 @@ class Tetris : public Game
 		void drawScoreBoard();
 		void ProcessInput();
 
-		std::vector<MGVec2<int>> getDownMostCoords();
 		void applyTetraminoToField();
 		void TimeMoveFallingTetramino();
 
