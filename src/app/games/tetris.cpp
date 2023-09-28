@@ -182,6 +182,30 @@ void Tetris::drawScoreBoard()
 	ImGui::SetNextWindowSize(Consts::cTetrisScoreBoardSize);
 	ImGui::Begin("Tetris ScoreBoard", nullptr, WINDOW_BACKGROUND_FLAGS);
 
+	ImGui::PushFont(m_ScoreBoardFont);
+	{
+		/* Move text a little */
+		float score_cursor_x = (Consts::cTetrisScoreBoardWidth - m_ScoreTextSize.x) / 2.0f;
+		ImGui::SetCursorPos({score_cursor_x + 5.0f, 110.0f});
+		ImGui::Text("SCORE");
+	}
+
+	{
+		/* TODO: Do we need to dynamically update width and offset of the score? */
+		ImVec2 next_pos = ImGui::GetCursorPos();
+		ImGui::SetCursorPos({next_pos.x + 8.f, next_pos.y});
+		ImGui::Text("%06d", m_Score);
+	}
+
+	{
+		ImVec2 next_pos = ImGui::GetCursorPos();
+		float next_cursor_x = (Consts::cTetrisScoreBoardWidth - m_NextTextSize.x) / 2.0f;
+		ImGui::SetCursorPos({next_cursor_x + 5.0f, next_pos.y + 150.0f});
+		ImGui::Text("NEXT");
+	}
+
+	ImGui::PopFont();
+
 	ImGui::End();
 }
 
@@ -421,6 +445,12 @@ void Tetris::checkAndRemoveLines()
 	}
 }
 
+void Tetris::LoadFont()
+{
+	ImGuiIO& io = ImGui::GetIO();
+	m_ScoreBoardFont = io.Fonts->AddFontFromFileTTF("assets/Score-Font.ttf", 50.0f);
+}
+
 void Tetris::OnAttach()
 {
 	LOG_DEBUG("Attaching Tetris");
@@ -439,6 +469,11 @@ void Tetris::OnAttach()
 
 	m_FallingTetramino = GenerateTetramino();
 	m_NextTetramino = GenerateTetramino();
+
+	const char score_text[] = "SCORE";
+	const char next_text[] = "NEXT";
+	m_ScoreTextSize = m_ScoreBoardFont->CalcTextSizeA(50.0f, FLT_MAX, 0.0f, &score_text[0], &score_text[5]);
+	m_NextTextSize  = m_ScoreBoardFont->CalcTextSizeA(50.0f, FLT_MAX, 0.0f, &next_text[0], &next_text[4]);
 }
 
 void Tetris::OnDetach()

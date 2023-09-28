@@ -56,6 +56,11 @@ bool MainApp::Init()
 	ImGui_ImplGlfw_InitForOpenGL(m_Window.GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 130");
 
+	/* Load default imgui font as the first one */
+	ImGui::GetIO().Fonts->AddFontDefault();
+
+	GameTetris.LoadFont();
+
 	return true;
 }
 

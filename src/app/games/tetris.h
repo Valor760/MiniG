@@ -77,6 +77,9 @@ class Tetris : public Game
 		virtual void OnAttach();
 		virtual void OnUpdate(double dt);
 		virtual void OnDetach();
+
+		/* Workaround, because font can't be loaded in OnAttach */
+		void LoadFont();
 	
 	public:
 		const std::string m_GameName = "Tetris";
@@ -97,7 +100,7 @@ class Tetris : public Game
 
 	private:
 		double m_PassedTime = 0.0;
-		int64_t m_Score = 0;
+		int m_Score = 0;
 
 		/* Tetris field is 10 x 20 */
 		std::array<std::array<Block, 10>, 20> m_Field = {};
@@ -106,5 +109,9 @@ class Tetris : public Game
 
 		std::shared_ptr<Tetramino> m_FallingTetramino = nullptr;
 		std::shared_ptr<Tetramino> m_NextTetramino = nullptr;
+
+		ImFont* m_ScoreBoardFont = nullptr;
+		ImVec2 m_ScoreTextSize = {};
+		ImVec2 m_NextTextSize = {};
 };
 } /* namespace MiniG::Games */
