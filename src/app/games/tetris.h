@@ -19,10 +19,11 @@ enum class BlockColor
 	ElementCount
 };
 
-enum class BlockTexture
+enum class Texture
 {
 	Wall,
 	Block,
+	FieldBG,
 
 	ElementCount
 };
@@ -106,7 +107,7 @@ class Tetris : public Game
 		/* Tetris field is 10 x 20 */
 		std::array<std::array<Block, 10>, 20> m_Field = {};
 
-		std::map<BlockTexture, Resources::Texture> m_BlockTextures;
+		std::map<Texture, Resources::Texture> m_Textures;
 
 		std::shared_ptr<Tetramino> m_FallingTetramino = nullptr;
 		std::shared_ptr<Tetramino> m_NextTetramino = nullptr;

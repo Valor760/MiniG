@@ -111,9 +111,9 @@ void Tetris::drawField()
 	const ImVec2 block_size = ImVec2(Consts::cBlockEdgeSize, Consts::cBlockEdgeSize);
 
 	/* First, draw the border */
-	if(m_BlockTextures[BlockTexture::Wall].IsReady())
+	if(m_Textures[Texture::Wall].IsReady())
 	{
-		const GLuint wall_texture_id = m_BlockTextures[BlockTexture::Wall].GetID();
+		const GLuint wall_texture_id = m_Textures[Texture::Wall].GetID();
 
 		/* Draw left and right walls */
 		for(int i = 0; i < Consts::cPlayFieldHeight; i++)
@@ -130,9 +130,18 @@ void Tetris::drawField()
 		}
 	}
 
-	if(m_BlockTextures[BlockTexture::Block].IsReady())
+	/* Draw field background */
+	if(m_Textures[Texture::FieldBG].IsReady())
 	{
-		const GLuint block_texture_id = m_BlockTextures[BlockTexture::Block].GetID();
+		const ImVec2 bg_size = {Consts::cTetrisFieldWidth - 2 * Consts::cBlockEdgeSize, Consts::cBlockEdgeSize * Consts::cPlayFieldHeight};
+		ImGui::SetCursorPosX(Consts::cBlockEdgeSize);
+		ImGui::SetCursorPosY(0);
+		ImGui::Image((void*)(int64_t)m_Textures[Texture::FieldBG].GetID(), bg_size);
+	}
+
+	if(m_Textures[Texture::Block].IsReady())
+	{
+		const GLuint block_texture_id = m_Textures[Texture::Block].GetID();
 
 		/* Draw the field */
 		/* Rows */
@@ -211,7 +220,7 @@ void Tetris::drawScoreBoard()
 		ImVec2 prev_pos = ImGui::GetCursorPos();
 		const float padding = 50.0f;
 		const float block_edge_size = (Consts::cTetrisScoreBoardWidth - (padding * 2)) / 4.0f;
-		const GLuint block_texture_id = m_BlockTextures[BlockTexture::Block].GetID();
+		const GLuint block_texture_id = m_Textures[Texture::Block].GetID();
 		for(const auto& block_coord : m_NextTetramino->OccupiedCells)
 		{
 			ImGui::SetCursorPosX(padding + block_edge_size * (block_coord.x - 3));
@@ -836,16 +845,22 @@ void Tetris::OnAttach()
 {
 	LOG_DEBUG("Attaching Tetris");
 
-	m_BlockTextures[BlockTexture::Wall] = Resources::Texture("assets/tetris-wall.png");
-	if(!m_BlockTextures[BlockTexture::Wall].IsReady())
+	m_Textures[Texture::Wall] = Resources::Texture("assets/tetris-wall.png");
+	if(!m_Textures[Texture::Wall].IsReady())
 	{
 		LOG_ERROR("Couldn't load Wall texture!");
 	}
 
-	m_BlockTextures[BlockTexture::Block] = Resources::Texture("assets/tetris-block.png");
-	if(!m_BlockTextures[BlockTexture::Block].IsReady())
+	m_Textures[Texture::Block] = Resources::Texture("assets/tetris-block.png");
+	if(!m_Textures[Texture::Block].IsReady())
 	{
 		LOG_ERROR("Couldn't load Block texture!");
+	}
+
+	m_Textures[Texture::FieldBG] = Resources::Texture("assets/tetris-field-bg.png");
+	if(!m_Textures[Texture::FieldBG].IsReady())
+	{
+		LOG_ERROR("Couldn't load FieldBG texture!");
 	}
 
 	m_FallingTetramino = GenerateTetramino();
@@ -862,11 +877,11 @@ void Tetris::OnDetach()
 	LOG_DEBUG("Detaching Tetris");
 
 	/* Release all textures */
-	for(auto [key, val]: m_BlockTextures)
+	for(auto [key, val]: m_Textures)
 	{
 		val.Delete();
 	}
-	m_BlockTextures.clear();
+	m_Textures.clear();
 
 	m_FallingTetramino.reset();
 	m_NextTetramino.reset();
