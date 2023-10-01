@@ -206,6 +206,23 @@ void Tetris::drawScoreBoard()
 
 	ImGui::PopFont();
 
+	/* Draw next tetramino */
+	{
+		ImVec2 prev_pos = ImGui::GetCursorPos();
+		const float padding = 50.0f;
+		const float block_edge_size = (Consts::cTetrisScoreBoardWidth - (padding * 2)) / 4.0f;
+		const GLuint block_texture_id = m_BlockTextures[BlockTexture::Block].GetID();
+		for(const auto& block_coord : m_NextTetramino->OccupiedCells)
+		{
+			ImGui::SetCursorPosX(padding + block_edge_size * (block_coord.x - 3));
+			ImGui::SetCursorPosY(prev_pos.y + padding + block_edge_size * block_coord.y);
+			ImGui::Image((void*)(int64_t)block_texture_id, {block_edge_size, block_edge_size},
+				{0, 0}, {1, 1},
+				Vec4Norm(g_BlockColors[m_NextTetramino->Color], 255)
+			);
+		}
+	}
+
 	ImGui::End();
 }
 
