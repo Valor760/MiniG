@@ -42,12 +42,12 @@ struct Block
 	BlockColor Color = BlockColor::ElementCount;
 };
 
-/* TODO: How to turn blocks around? */
 struct Tetramino
 {
 	TetraminoShape Shape = TetraminoShape::Shape_Count;
 	std::vector<MGVec2<int>> OccupiedCells = {};
 	BlockColor Color = BlockColor::ElementCount;
+	int RotationState = 0;
 };
 
 enum MoveAction
@@ -95,6 +95,7 @@ class Tetris : public Game
 
 		void MoveFallingTetraminoToSide(int where);
 		void DropFallingTetramino();
+		void rorateFallingTetramino();
 
 		void checkAndRemoveLines();
 

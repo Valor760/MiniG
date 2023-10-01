@@ -370,6 +370,364 @@ void Tetris::DropFallingTetramino()
 	applyTetraminoToField();
 }
 
+void Tetris::rorateFallingTetramino()
+{
+	/* Yeah, everything is hardcoded, but whatever, I don't know a general way how to rotate them */
+	std::vector<MGVec2<int>> blocks_vec = m_FallingTetramino->OccupiedCells;
+	std::vector<MGVec2<int>> rotation_angle(4);
+
+	switch(m_FallingTetramino->Shape)
+	{
+		case TetraminoShape::Shape_I:
+		{
+			if(m_FallingTetramino->RotationState == 0)
+			{
+				/*
+				[]              
+				[]              
+				[]  ->  [][][][]
+				[]              
+				*/
+				rotation_angle[0] = {2, 2};
+				rotation_angle[1] = {1, 1};
+				rotation_angle[2] = {0, 0};
+				rotation_angle[3] = {-1, -1};
+			}
+			else
+			{
+				/*
+				              []
+				              []
+				[][][][]  ->  []
+				              []
+				*/
+				m_FallingTetramino->RotationState = 0;
+				rotation_angle[0] = {-2, -2};
+				rotation_angle[1] = {-1, -1};
+				rotation_angle[2] = {0, 0};
+				rotation_angle[3] = {1, 1};
+				break;
+			}
+
+			m_FallingTetramino->RotationState++;
+			break;
+		}
+		case TetraminoShape::Shape_J:
+		{
+			if(m_FallingTetramino->RotationState == 0)
+			{
+				/*
+				  []            
+				  []  ->  []    
+				[][]      [][][]
+				*/
+				rotation_angle[0] = {1, 1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {-1, -1};
+				rotation_angle[3] = {0, -2};
+			}
+			else if(m_FallingTetramino->RotationState == 1)
+			{
+				/*
+				            [][]
+				[]      ->  []  
+				[][][]      []  
+				*/
+				rotation_angle[0] = {-1, 1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {1, -1};
+				rotation_angle[3] = {2, 0};
+			}
+			else if(m_FallingTetramino->RotationState == 2)
+			{
+				/*
+				[][]            
+				[]    ->  [][][]
+				[]            []
+				*/
+				rotation_angle[0] = {-1, -1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {1, 1};
+				rotation_angle[3] = {0, 2};
+			}
+			else
+			{
+				/*
+				              []
+				[][][]  ->    []
+				    []      [][]
+				*/
+				m_FallingTetramino->RotationState = 0;
+				rotation_angle[0] = {1, -1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {-1, 1};
+				rotation_angle[3] = {-2, 0};
+				break;
+			}
+
+			m_FallingTetramino->RotationState++;
+			break;
+		}
+		case TetraminoShape::Shape_L:
+		{
+			if(m_FallingTetramino->RotationState == 0)
+			{
+				/*
+				[]              
+				[]    ->  [][][]
+				[][]      []    
+				*/
+				rotation_angle[0] = {1, 1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {-1, -1};
+				rotation_angle[3] = {-2, 0};
+			}
+			else if(m_FallingTetramino->RotationState == 1)
+			{
+				/*
+				            [][]
+				[][][]  ->    []
+				[]            []
+				*/
+				rotation_angle[0] = {-1, 1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {1, -1};
+				rotation_angle[3] = {0, -2};
+			}
+			else if(m_FallingTetramino->RotationState == 2)
+			{
+				/*
+				[][]            []
+				  []    ->  [][][]
+				  []              
+				*/
+				rotation_angle[0] = {-1, -1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {1, 1};
+				rotation_angle[3] = {2, 0};
+			}
+			else
+			{
+				/*
+				    []        []  
+				[][][]  ->    []  
+				              [][]
+				*/
+				m_FallingTetramino->RotationState = 0;
+				rotation_angle[0] = {1, -1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {-1, 1};
+				rotation_angle[3] = {0, 2};
+				break;
+			}
+
+			m_FallingTetramino->RotationState++;
+			break;
+		}
+		case TetraminoShape::Shape_O:
+		{
+			/* No need to rotate */
+			break;
+		}
+		case TetraminoShape::Shape_S:
+		{
+			if(m_FallingTetramino->RotationState == 0)
+			{
+				/*
+				  [][]      []  
+				[][]    ->  [][]
+				              []
+				*/
+				rotation_angle[0] = {1, -1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {1, 1};
+				rotation_angle[3] = {0, 2};
+			}
+			else
+			{
+				/*
+				[]              
+				[][]  ->    [][]
+				  []      [][]  
+				*/
+				m_FallingTetramino->RotationState = 0;
+				rotation_angle[0] = {-1, 1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {-1, -1};
+				rotation_angle[3] = {0, -2};
+				break;
+			}
+
+			m_FallingTetramino->RotationState++;
+			break;
+		}
+		case TetraminoShape::Shape_T:
+		{
+			if(m_FallingTetramino->RotationState == 0)
+			{
+				/*
+				              []
+				[][][]  ->  [][]
+				  []          []
+				*/
+				rotation_angle[0] = {1, -1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {-1, 1};
+				rotation_angle[3] = {-1, -1};
+			}
+			else if(m_FallingTetramino->RotationState == 1)
+			{
+				/*
+				  []        []  
+				[][]  ->  [][][]
+				  []            
+				*/
+				rotation_angle[0] = {1, 1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {-1, -1};
+				rotation_angle[3] = {1, -1};
+			}
+			else if(m_FallingTetramino->RotationState == 2)
+			{
+				/*
+				  []        []  
+				[][][]  ->  [][]
+				            []  
+				*/
+				rotation_angle[0] = {-1, 1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {1, -1};
+				rotation_angle[3] = {1, 1};
+			}
+			else
+			{
+				/*
+				[]  
+				[][]  ->  [][][]
+				[]          []
+				*/
+				m_FallingTetramino->RotationState = 0;
+				rotation_angle[0] = {-1, -1};
+				rotation_angle[1] = {0, 0};
+				rotation_angle[2] = {1, 1};
+				rotation_angle[3] = {-1, 1};
+				break;
+			}
+
+			m_FallingTetramino->RotationState++;
+			break;
+		}
+		case TetraminoShape::Shape_Z:
+		{
+			if(m_FallingTetramino->RotationState == 0)
+			{
+				/*
+				[][]          []
+				  [][]  ->  [][]
+				            []  
+				*/
+				rotation_angle[0] = {2, 0};
+				rotation_angle[1] = {1, 1};
+				rotation_angle[2] = {0, 0};
+				rotation_angle[3] = {-1, 1};
+			}
+			else
+			{
+				/*
+				  []      [][]  
+				[][]  ->    [][]
+				[]              
+				*/
+				m_FallingTetramino->RotationState = 0;
+				rotation_angle[0] = {-2, 0};
+				rotation_angle[1] = {-1, -1};
+				rotation_angle[2] = {0, 0};
+				rotation_angle[3] = {1, -1};
+				break;
+			}
+
+			m_FallingTetramino->RotationState++;
+			break;
+			break;
+		}
+		default:
+			throw std::runtime_error("Unknown shape received: " + std::to_string((int)m_FallingTetramino->Shape));
+	}
+
+	for(int i = 0; i < 4; i++)
+	{
+		blocks_vec[i] = {blocks_vec[i].x + rotation_angle[i].x, blocks_vec[i].y + rotation_angle[i].y};
+	}
+
+	/* Check for collision */
+	MGVec2<int> min_coords = {0, 0};
+	MGVec2<int> max_coords = {0, 0};
+	for(const auto& block_coords : blocks_vec)
+	{
+		if(block_coords.x < min_coords.x)
+		{
+			min_coords.x = block_coords.x;
+		}
+
+		if(block_coords.y < min_coords.y)
+		{
+			min_coords.y = block_coords.y;
+		}
+
+		if(block_coords.x > max_coords.x)
+		{
+			max_coords.x = block_coords.x;
+		}
+
+		if(block_coords.x > max_coords.x)
+		{
+			max_coords.x = block_coords.x;
+		}
+	}
+
+	MGVec2<int> offset_coords = {0, 0};
+	if(min_coords.x < 0)
+	{
+		offset_coords.x = -min_coords.x;
+	}
+
+	if(min_coords.y < 0)
+	{
+		offset_coords.y = -min_coords.y;
+	}
+
+	if(max_coords.x >= 9)
+	{
+		assert(offset_coords.x == 0);
+		offset_coords.x = 9 - max_coords.x;
+	}
+
+	if(max_coords.y >= 19)
+	{
+		assert(offset_coords.y == 0);
+		offset_coords.y = 19 - max_coords.y;
+	}
+
+	/* Apply offset */
+	for(auto& block_coords : blocks_vec)
+	{
+		block_coords.x += offset_coords.x;
+		block_coords.y += offset_coords.y;
+	}
+
+	/* Check with the field */
+	for(const auto& block_coords : blocks_vec)
+	{
+		if(m_Field[block_coords.y][block_coords.x].IsSet)
+		{
+			/* Do not rotate tetramino if it is blocked */
+			return;
+		}
+	}
+
+	m_FallingTetramino->OccupiedCells = blocks_vec;
+}
+
 void Tetris::ProcessInput()
 {
 	/* TODO: Let imgui handle the repeat rate if the button is hold */
@@ -406,6 +764,12 @@ void Tetris::ProcessInput()
 		/* Tetramino has fallen apply it to the field */
 		m_PassedTime = 0.0;
 		return;
+	}
+
+	/* Rotate tetramino */
+	if(ImGui::IsKeyPressed(ImGuiKey_R, false))
+	{
+		rorateFallingTetramino();
 	}
 
 	if(moveLeft && moveRight)
