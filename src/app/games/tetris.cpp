@@ -139,6 +139,53 @@ void Tetris::drawField()
 		ImGui::Image((void*)(int64_t)m_Textures[Texture::FieldBG].GetID(), bg_size);
 	}
 
+	/* Draw tetramino projection */
+	/* Draw this BEFORE the tetramino */
+	if(m_Textures[Texture::BlockProjection].IsReady())
+	{
+		/* Find the lowest Y coord, that hits other blocks or floor */
+		int y_diff = 999;
+		for(const auto& block_pos : m_FallingTetramino->OccupiedCells)
+		{
+			for(int i = block_pos.y + 1; i < m_Field.size(); i++)
+			{
+				if(m_Field[i][block_pos.x].IsSet)
+				{
+					int diff = i - 1 - block_pos.y;
+					if(diff < y_diff)
+					{
+						y_diff = diff;
+					}
+				}
+			}
+		}
+
+		/* If haven't found any set block */
+		if(y_diff >= m_Field.size())
+		{
+			for(const auto& block_pos : m_FallingTetramino->OccupiedCells)
+			{
+				int diff = (int)m_Field.size() - 1 - block_pos.y;
+				if(diff < y_diff)
+				{
+					y_diff = diff;
+				}
+			}
+		}
+
+		/* Draw the projection */
+		for(const auto& block_pos : m_FallingTetramino->OccupiedCells)
+		{
+			/* X offsets by 1 because of walls */
+			ImGui::SetCursorPosX((float)((block_pos.x + 1) * Consts::cBlockEdgeSize));
+			ImGui::SetCursorPosY((float)((block_pos.y + y_diff) * Consts::cBlockEdgeSize));
+			ImGui::Image((void*)(int64_t)m_Textures[Texture::BlockProjection].GetID(), block_size,
+					{0, 0}, {1, 1},
+					Vec4Norm(g_BlockColors[m_FallingTetramino->Color], 255)
+				);
+		}
+	}
+
 	if(m_Textures[Texture::Block].IsReady())
 	{
 		const GLuint block_texture_id = m_Textures[Texture::Block].GetID();
@@ -870,6 +917,12 @@ void Tetris::OnAttach()
 	if(!m_Textures[Texture::FieldBG].IsReady())
 	{
 		LOG_ERROR("Couldn't load FieldBG texture!");
+	}
+
+	m_Textures[Texture::BlockProjection] = Resources::Texture("assets/tetris-block-proj.png");
+	if(!m_Textures[Texture::BlockProjection].IsReady())
+	{
+		LOG_ERROR("Couldn't load BlockProjection texture!");
 	}
 
 	m_FallingTetramino = GenerateTetramino();
