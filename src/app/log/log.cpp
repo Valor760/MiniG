@@ -17,7 +17,10 @@ namespace Log
 #ifdef MINIG_PLATFORM_WINDOWS
 	const auto COLOR_ERR   = FOREGROUND_RED;
 	const auto COLOR_INFO  = FOREGROUND_GREEN;
+	const auto COLOR_DEBUG = FOREGROUND_BLUE;
+	const auto COLOR_WHITE = FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 	#define WIN32_SET_COLOR(hConsole, color) SetConsoleTextAttribute(hConsole, color);
+	#define WIN32_RESET_COLOR(hConsole) SetConsoleTextAttribute(hConsole, COLOR_WHITE);
 #else
 	#ifndef DISABLE_COLOR_LOG
 		#define COLOR_ERR    "\033[31m"
@@ -32,6 +35,69 @@ namespace Log
 	#endif /* DISABLE_COLOR_LOG */
 #endif /* MINIG_PLATFORM_WINDOWS */
 
+#ifdef MINIG_PLATFORM_WINDOWS
+/* On windows we have a little different way to log coloring */
+void write_log(int level, const char* fmt, ...)
+{
+	if(!fmt)
+	{
+		return;
+	}
+
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	WIN32_RESET_COLOR(hConsole);
+
+	/* Add time as prefix */
+	auto now = std::chrono::system_clock::now();
+	auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+	std::stringstream ss;
+	ss << std::put_time(std::localtime(&in_time_t), "%H:%M:%S");
+	std::string log_str = "[" + ss.str() + "][";
+
+	/* Print time in white */
+	printf(log_str.c_str());
+
+	/* Then set coloring fot the log level word */
+	switch(level)
+	{
+		case Consts::LEVEL_ERROR:
+		{
+			WIN32_SET_COLOR(hConsole, COLOR_ERR);
+			log_str = "ERROR";
+			break;
+		}
+		case Consts::LEVEL_INFO:
+		{
+			WIN32_SET_COLOR(hConsole, COLOR_INFO);
+			log_str = "INFO";
+			break;
+		}
+		case Consts::LEVEL_DEBUG:
+		{
+			WIN32_SET_COLOR(hConsole, COLOR_DEBUG);
+			log_str = "DEBUG";
+			break;
+		}
+		default:
+			break;
+	}
+
+	printf(log_str.c_str());
+	/* Reset back the color */
+	WIN32_RESET_COLOR(hConsole);
+	log_str = "]: ";
+
+	va_list args;
+	va_start(args, fmt);
+
+	/* TODO: Write to a file, but on linux all colors should be ommitted */
+	log_str += std::string(fmt) + "\n";
+	vprintf(log_str.c_str(), args);
+
+	va_end(args);
+}
+#else
 void write_log(int level, const char* fmt, ...)
 {
 	if(!fmt)
@@ -48,29 +114,6 @@ void write_log(int level, const char* fmt, ...)
 	std::string log_str = "[" + ss.str() + "]";
 
 	/* Set coloring */
-#ifdef MINIG_PLATFORM_WINDOWS
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	switch(level)
-	{
-		case Consts::LEVEL_ERROR:
-		{
-			WIN32_SET_COLOR(hConsole, COLOR_ERR);
-			log_str.append("[ERROR]: ");
-			break;
-		}
-		case Consts::LEVEL_INFO:
-		{
-			WIN32_SET_COLOR(hConsole, COLOR_INFO);
-			log_str.append("[INFO]: ");
-			break;
-		}
-		case Consts::LEVEL_DEBUG:
-		{
-			log_str.append("[DEBUG]: ");
-			break;
-		}
-	}
-#else
 	switch(level)
 	{
 		case Consts::LEVEL_ERROR:
@@ -89,7 +132,6 @@ void write_log(int level, const char* fmt, ...)
 			break;
 		}
 	}
-#endif /* MINIG_PLATFORM_WINDOWS */
 
 	va_list args;
 	va_start(args, fmt);
@@ -100,6 +142,7 @@ void write_log(int level, const char* fmt, ...)
 
 	va_end(args);
 }
+#endif /* MINIG_PLATFORM_WINDOWS */
 
 #ifdef MINIG_PLATFORM_WINDOWS
 	#undef WIN32_SET_COLOR
