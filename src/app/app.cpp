@@ -13,9 +13,8 @@
 
 namespace MiniG
 {
-static Games::Tetris GameTetris;
-static std::map<std::string, Games::Game*> g_GamesMap = {
-	{"Tetris", &GameTetris},
+std::map<std::string, Games::Game*> g_GamesMap = {
+	{"Tetris", new Games::Tetris()},
 };
 
 void MainApp::LoadGame(const std::string& game_name)
@@ -24,6 +23,11 @@ void MainApp::LoadGame(const std::string& game_name)
 	{
 		m_CurrentGame->OnDetach();
 		m_CurrentGame = nullptr;
+	}
+
+	if(game_name.empty())
+	{
+		return;
 	}
 
 	try
@@ -38,7 +42,6 @@ void MainApp::LoadGame(const std::string& game_name)
 	}
 }
 
-/* Init basic application settings */
 bool MainApp::Init()
 {
 	/* Init OpenGL and ImGui stuff */
@@ -59,7 +62,7 @@ bool MainApp::Init()
 	/* Load default imgui font as the first one */
 	ImGui::GetIO().Fonts->AddFontDefault();
 
-	GameTetris.LoadFont();
+	static_cast<Games::Tetris*>(g_GamesMap["Tetris"])->LoadFont();
 
 	return true;
 }

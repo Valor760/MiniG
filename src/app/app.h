@@ -9,9 +9,12 @@ namespace MiniG
 class MainApp
 {
 	public:
+		/* Init basic application settings */
 		static bool Init();
+		/* Main application loop */
 		static void Run();
 
+		/* Load a desired game. Empty string will unload the game if it was previosly loaded */
 		static void LoadGame(const std::string& game_name);
 
 	private:
