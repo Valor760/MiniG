@@ -77,6 +77,8 @@ Exit:
 
 BUTTON_CALLBACK_FUNC(LayoutManager::SwitchLayoutImpl)
 {
+	LOG_DEBUG("");
+
 	if(args.size() != 1)
 	{
 		LOG_ERROR("Wrong number of arguments provided. Expected[%d], but got[%d]", 1, args.size());

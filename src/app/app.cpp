@@ -19,14 +19,18 @@ std::map<std::string, Games::Game*> g_GamesMap = {
 
 void MainApp::LoadGame(const std::string& game_name)
 {
+	LOG_DEBUG("");
+
 	if(m_CurrentGame)
 	{
+		LOG_DEBUG("Game[%s] is present. Clearing...", m_CurrentGame->m_GameName.c_str());
 		m_CurrentGame->OnDetach();
 		m_CurrentGame = nullptr;
 	}
 
 	if(game_name.empty())
 	{
+		LOG_DEBUG("No Game name was provided.");
 		return;
 	}
 
@@ -44,6 +48,8 @@ void MainApp::LoadGame(const std::string& game_name)
 
 bool MainApp::Init()
 {
+	LOG_DEBUG("");
+
 	/* Init OpenGL and ImGui stuff */
 	/* FIXME: Read window width and height from some settings file */
 	/* TODO: Add asserts */
@@ -69,6 +75,8 @@ bool MainApp::Init()
 
 void MainApp::Run()
 {
+	LOG_DEBUG("");
+
 	/* Black color */
 	glClearColor(0, 0, 0, 1.0);
 	auto prev_time = std::chrono::steady_clock::now();

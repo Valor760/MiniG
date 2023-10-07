@@ -30,6 +30,9 @@ Texture::Texture(const ImVec4& color, MGVec2<int> size, bool is_byte)
 
 	m_TextureSize = size;
 	m_Succeeded = true;
+	LOG_DEBUG("Created static color texture (id=%u w=%d h=%d col=[%f, %f, %f, %f])",
+		m_TextureID, size.x, size.y,
+		color.x * mult, color.y * mult, color.z * mult, color.w * mult);
 }
 
 Texture::Texture(const std::string& path)
@@ -39,6 +42,7 @@ Texture::Texture(const std::string& path)
 	uint8_t* texture_data = stbi_load(path.c_str(), &texture_width, &texture_height, nullptr, 4 /* RGBA */);
 	if(!texture_data)
 	{
+		LOG_ERROR("Failed to load texture %s", path.c_str());
 		return;
 	}
 
@@ -53,10 +57,12 @@ Texture::Texture(const std::string& path)
 
 	m_TextureSize = {texture_width, texture_height};
 	m_Succeeded = true;
+	LOG_DEBUG("Created texture %s (id=%u w=%d h=%d)", path.c_str(), m_TextureID, texture_width, texture_height);
 }
 
 void Texture::Delete()
 {
+	LOG_DEBUG("Deleting texture=%u", m_TextureID);
 	glDeleteTextures(1, &m_TextureID);
 	m_TextureID = 0;
 	m_TextureSize = {0, 0};
@@ -75,7 +81,7 @@ MGVec2<int> Texture::GetTextureSize() const
 
 ImVec2 Texture::GetTextureSizeImGui() const
 {
-	return ImVec2(m_TextureSize.x, m_TextureSize.y);
+	return ImVec2((float)m_TextureSize.x, (float)m_TextureSize.y);
 }
 
 bool Texture::IsReady() const

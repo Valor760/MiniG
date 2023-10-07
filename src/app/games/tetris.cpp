@@ -837,8 +837,17 @@ void Tetris::checkAndRemoveLines()
 
 void Tetris::LoadFont()
 {
+	const char* font = "assets/Score-Font.ttf";
+	LOG_DEBUG("Loading font (%s)", font);
 	ImGuiIO& io = ImGui::GetIO();
-	m_ScoreBoardFont = io.Fonts->AddFontFromFileTTF("assets/Score-Font.ttf", 50.0f);
+	m_ScoreBoardFont = io.Fonts->AddFontFromFileTTF(font, 50.0f);
+	if(!m_ScoreBoardFont)
+	{
+		LOG_ERROR("Failed to load font (%s)", font);
+		throw;
+	}
+	
+	LOG_DEBUG("Font successfully loaded");
 }
 
 void Tetris::OnAttach()

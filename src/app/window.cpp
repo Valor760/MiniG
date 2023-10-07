@@ -15,9 +15,11 @@ void GLFW_WindowSizeCallback(GLFWwindow* window, int new_width, int new_height)
 
 bool Window::Init(int width, int height)
 {
+	LOG_DEBUG("");
+
 	if(width <= 0 || height <= 0)
 	{
-		LOG_ERROR("Wrong window width or height provided");
+		LOG_ERROR("Wrong window size provided. width=%d height=%d", width, height);
 		return false;
 	}
 	/*
@@ -52,6 +54,8 @@ bool Window::Init(int width, int height)
 		LOG_ERROR("Failed to create window");
 		return false;
 	}
+	
+	LOG_INFO("Created window=%p size=%dx%d", m_Window, width, height);
 
 	glfwMakeContextCurrent(m_Window);
 	/* TODO: Add an option to customize this setting */
@@ -65,8 +69,11 @@ bool Window::Init(int width, int height)
 
 void Window::DeInit()
 {
+	LOG_DEBUG("");
+
 	if(m_Window)
 	{
+		LOG_DEBUG("Destroying window=%p", m_Window);
 		glfwDestroyWindow(m_Window);
 	}
 }
@@ -78,6 +85,8 @@ MGVec2<int> Window::GetSize() const
 
 void Window::SetSize(MGVec2<int> new_size)
 {
+	LOG_DEBUG("New size=%dx%d", new_size.x, new_size.y);
+
 	m_WindowWidth = new_size.x;
 	m_WindowHeight = new_size.y;
 }
