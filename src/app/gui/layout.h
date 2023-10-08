@@ -1,6 +1,7 @@
 #pragma once
 #include "app/common.h"
 #include "app/window.h"
+#include "app/resources/texture.h"
 
 #include <vector>
 #include <variant>
@@ -52,11 +53,12 @@ struct Item
 
 struct LayoutWindow
 {
-	std::string Label          = "";
-	ImVec2 Size                = {0, 0};
-	ImVec2 Position            = {0, 0}; /* Upper left corner position */
-	ImGuiWindowFlags Flags     = 0;
-	std::vector<Item> Items    = {};
+	std::string Label             = "";
+	ImVec2 Size                   = {0, 0};
+	ImVec2 Position               = {0, 0}; /* Upper left corner position */
+	ImGuiWindowFlags Flags        = 0;
+	std::vector<Item> Items       = {};
+	Resources::Texture Background = Resources::Texture();
 };
 
 struct Layout

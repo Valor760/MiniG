@@ -7,9 +7,18 @@ const static std::vector<Layout(*)()> g_LayoutFuncs = {
 	GetLayout_MainMenu, GetLayout_SelectGame, GetLayout_Tetris
 };
 
+const std::vector<void(*)()> g_LayoutInitFuncs = {
+	Gui::Init_LayoutMainMenu, Gui::Init_LayoutGameSelection,
+};
+
 /* Call add all layouts to global array in constructor */
 LayoutManager::LayoutManager()
 {
+	for(auto func : g_LayoutInitFuncs)
+	{
+		func();
+	}
+
 	/* Init with Main Menu layout */
 	m_CurrentLayout = GetLayout_MainMenu();
 }
@@ -44,6 +53,13 @@ bool LayoutManager::DrawLayoutImpl()
 		ImGui::SetNextWindowPos(window->Position);
 		ImGui::SetNextWindowSize(window->Size);
 		ImGui::Begin(window->Label.c_str(), nullptr, window->Flags);
+
+		/* Draw background */
+		if(window->Background.IsReady())
+		{
+			ImGui::SetCursorPos({0, 0});
+			ImGui::Image((void*)(int64_t)window->Background.GetID(), window->Size);
+		}
 
 		for(auto& item : window->Items)
 		{

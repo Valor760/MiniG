@@ -31,13 +31,14 @@ static Button Game_Back_Button = {
 };
 
 static LayoutWindow Tetris_Background_Window = {
-	.Label     = "Background",
-	.Size      = WINDOW_SIZE_FULLSCREEN,
-	.Position  = POSITION_DEFAULT,
-	.Flags     = WINDOW_BACKGROUND_FLAGS,
-	.Items     = {
+	.Label      = "Background",
+	.Size       = WINDOW_SIZE_FULLSCREEN,
+	.Position   = POSITION_DEFAULT,
+	.Flags      = WINDOW_BACKGROUND_FLAGS,
+	.Items      = {
 		{ ItemType::Button, &Game_Back_Button },
 	},
+	.Background = Resources::Texture(),
 };
 
 Layout Layout_Tetris = {
@@ -115,4 +116,9 @@ Layout Layout_SelectGame = {
 		&SG_Background_Window, &SG_Buttons_Window
 	},
 };
+
+void Init_LayoutGameSelection()
+{
+	Tetris_Background_Window.Background = Resources::Texture("assets/tetris-game-bg.png");
+}
 } /* namespace MiniG::Gui */
