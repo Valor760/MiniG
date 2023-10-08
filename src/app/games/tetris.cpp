@@ -149,24 +149,17 @@ void Tetris::drawField()
 		{
 			for(int i = block_pos.y + 1; i < m_Field.size(); i++)
 			{
+				int diff = 0;
 				if(m_Field[i][block_pos.x].IsSet)
 				{
-					int diff = i - 1 - block_pos.y;
-					if(diff < y_diff)
-					{
-						y_diff = diff;
-					}
+					diff = i - 1 - block_pos.y;
 				}
-			}
-		}
+				else if(i == (m_Field.size() - 1))
+				{
+					diff = i - block_pos.y;
+				}
 
-		/* If haven't found any set block */
-		if(y_diff >= m_Field.size())
-		{
-			for(const auto& block_pos : m_FallingTetramino->OccupiedCells)
-			{
-				int diff = (int)m_Field.size() - 1 - block_pos.y;
-				if(diff < y_diff)
+				if(diff > 0 && diff < y_diff)
 				{
 					y_diff = diff;
 				}
