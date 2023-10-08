@@ -70,6 +70,16 @@ std::map<TetraminoShape, std::vector<MGVec2<int>>> g_TetraminoStartingPos = {
 	{TetraminoShape::Shape_Z, {{4, 0}, {5, 0}, {5, 1}, {6, 1}}},
 };
 
+std::map<TetraminoShape, MGVec2<int>> g_TetraminoMaxDimensions = {
+	{TetraminoShape::Shape_I, {1, 4}},
+	{TetraminoShape::Shape_J, {2, 3}},
+	{TetraminoShape::Shape_L, {2, 3}},
+	{TetraminoShape::Shape_O, {2, 2}},
+	{TetraminoShape::Shape_S, {3, 2}},
+	{TetraminoShape::Shape_T, {3, 2}},
+	{TetraminoShape::Shape_Z, {3, 2}},
+};
+
 std::uniform_int_distribution<int> g_ShapeRandGen((int)TetraminoShape::Shape_I, (int)TetraminoShape::Shape_Z);
 std::uniform_int_distribution<int> g_ColorRandGen((int)BlockColor::ColorRed, (int)BlockColor::ColorPurple);
 
@@ -131,12 +141,21 @@ void Tetris::drawField()
 	}
 
 	/* Draw field background */
-	if(m_Textures[Texture::FieldBG].IsReady())
+	if(m_Textures[Texture::Block].IsReady())
 	{
-		const ImVec2 bg_size = {Consts::cTetrisFieldWidth - 2 * Consts::cBlockEdgeSize, Consts::cBlockEdgeSize * Consts::cPlayFieldHeight};
-		ImGui::SetCursorPosX(Consts::cBlockEdgeSize);
-		ImGui::SetCursorPosY(0);
-		ImGui::Image((void*)(int64_t)m_Textures[Texture::FieldBG].GetID(), bg_size);
+		for(int i = 0; i < Consts::cPlayFieldHeight; i++)
+		{
+			for(int j = 0; j < Consts::cPlayFieldWidth; j++)
+			{
+				/* X offsets by 1 because of walls */
+				ImGui::SetCursorPosX((float)((j + 1) * Consts::cBlockEdgeSize));
+				ImGui::SetCursorPosY((float)(i * Consts::cBlockEdgeSize));
+				ImGui::Image((void*)(int64_t)m_Textures[Texture::Block].GetID(), block_size,
+						{0, 0}, {1, 1},
+						Vec4Norm(ImVec4(40.f, 40.f, 40.f, 255.f), 255)
+					);
+			}
+		}
 	}
 
 	/* Draw tetramino projection */
@@ -231,6 +250,31 @@ void Tetris::drawScoreBoard()
 	ImGui::SetNextWindowSize(Consts::cTetrisScoreBoardSize);
 	ImGui::Begin("Tetris ScoreBoard", nullptr, WINDOW_BACKGROUND_FLAGS);
 
+	/* Draw scoreboard background */
+	const int width_blocks = 6;
+	const GLuint block_texture_id = m_Textures[Texture::Block].GetID();
+	const float block_edge_size = Consts::cTetrisScoreBoardWidth / (float)width_blocks;
+	const ImVec2 block_size = ImVec2(block_edge_size, block_edge_size);
+	for(int i = 0; i < Consts::cPlayFieldHeight; i++)
+	{
+		for(int j = 0; j < width_blocks; j++)
+		{
+			ImVec4 color = {50.f, 50.f, 50.f, 255.f};
+			if(i >= 10 && i <= 13 && j >= 1 && j <= 4)
+			{
+				/* Window background is transparrent. Draw an invisible black texture */
+				color = {0.f, 0.f, 0.f, 255.f};
+			}
+
+			ImGui::SetCursorPosX((float)(j * block_edge_size));
+			ImGui::SetCursorPosY((float)(i * block_edge_size));
+			ImGui::Image((void*)(int64_t)block_texture_id, block_size,
+					{0, 0}, {1, 1},
+					Vec4Norm(color, 255)
+				);
+		}
+	}
+
 	ImGui::PushFont(m_ScoreBoardFont);
 	{
 		/* Move text a little */
@@ -258,14 +302,15 @@ void Tetris::drawScoreBoard()
 	/* Draw next tetramino */
 	{
 		ImVec2 prev_pos = ImGui::GetCursorPos();
-		const float padding = 50.0f;
-		const float block_edge_size = (Consts::cTetrisScoreBoardWidth - (padding * 2)) / 4.0f;
-		const GLuint block_texture_id = m_Textures[Texture::Block].GetID();
+		int next_block_y = (int)(prev_pos.y / block_edge_size + 1);
+		const MGVec2<int>& tetramino_dim = g_TetraminoMaxDimensions[m_NextTetramino->Shape];
+		float x_offset = (4.f - tetramino_dim.x) / 2.f;
+		float y_offset = (4.f - tetramino_dim.y) / 2.f;
 		for(const auto& block_coord : m_NextTetramino->OccupiedCells)
 		{
-			ImGui::SetCursorPosX(padding + block_edge_size * (block_coord.x - 3));
-			ImGui::SetCursorPosY(prev_pos.y + padding + block_edge_size * block_coord.y);
-			ImGui::Image((void*)(int64_t)block_texture_id, {block_edge_size, block_edge_size},
+			ImGui::SetCursorPosX(block_edge_size * (block_coord.x - 3) + (x_offset * block_edge_size));
+			ImGui::SetCursorPosY(block_edge_size * (block_coord.y + next_block_y) + (y_offset * block_edge_size));
+			ImGui::Image((void*)(int64_t)block_texture_id, block_size,
 				{0, 0}, {1, 1},
 				Vec4Norm(g_BlockColors[m_NextTetramino->Color], 255)
 			);
@@ -904,12 +949,6 @@ void Tetris::OnAttach()
 	if(!m_Textures[Texture::Block].IsReady())
 	{
 		LOG_ERROR("Couldn't load Block texture!");
-	}
-
-	m_Textures[Texture::FieldBG] = Resources::Texture("assets/tetris-field-bg.png");
-	if(!m_Textures[Texture::FieldBG].IsReady())
-	{
-		LOG_ERROR("Couldn't load FieldBG texture!");
 	}
 
 	m_Textures[Texture::BlockProjection] = Resources::Texture("assets/tetris-block-proj.png");

@@ -23,7 +23,6 @@ enum class Texture
 {
 	Wall,
 	Block,
-	FieldBG,
 	BlockProjection,
 
 	ElementCount
