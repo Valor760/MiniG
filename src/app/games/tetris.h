@@ -96,6 +96,7 @@ class Tetris : public Game
 
 		void MoveFallingTetraminoToSide(int where);
 		void DropFallingTetramino();
+		int findLowestAllowedBlock();
 		void rorateFallingTetramino();
 
 		void checkAndRemoveLines();

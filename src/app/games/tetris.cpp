@@ -162,28 +162,7 @@ void Tetris::drawField()
 	/* Draw this BEFORE the tetramino */
 	if(m_Textures[Texture::BlockProjection].IsReady())
 	{
-		/* Find the lowest Y coord, that hits other blocks or floor */
-		int y_diff = 999;
-		for(const auto& block_pos : m_FallingTetramino->OccupiedCells)
-		{
-			for(int i = block_pos.y + 1; i < m_Field.size(); i++)
-			{
-				int diff = 0;
-				if(m_Field[i][block_pos.x].IsSet)
-				{
-					diff = i - 1 - block_pos.y;
-				}
-				else if(i == (m_Field.size() - 1))
-				{
-					diff = i - block_pos.y;
-				}
-
-				if(diff > 0 && diff < y_diff)
-				{
-					y_diff = diff;
-				}
-			}
-		}
+		int y_diff = findLowestAllowedBlock();
 
 		/* Draw the projection */
 		for(const auto& block_pos : m_FallingTetramino->OccupiedCells)
@@ -414,7 +393,7 @@ void Tetris::MoveFallingTetraminoToSide(int where)
 	}
 }
 
-void Tetris::DropFallingTetramino()
+int Tetris::findLowestAllowedBlock()
 {
 	std::vector<MGVec2<int>> downmost_coords = m_FallingTetramino->OccupiedCells;
 
@@ -450,10 +429,17 @@ void Tetris::DropFallingTetramino()
 			}
 		}
 
-		assert(lowest_y_point < m_Field.size());
+		assert(lowest_y_point != -1);
 
 		nearest_field_y_diff = (int)m_Field.size() - 1 - lowest_y_point;
 	}
+
+	return nearest_field_y_diff;
+}
+
+void Tetris::DropFallingTetramino()
+{
+	int nearest_field_y_diff = findLowestAllowedBlock();
 
 	/* Move falling tetramino down by calculated Y diff */
 	for(auto& block_coord : m_FallingTetramino->OccupiedCells)
