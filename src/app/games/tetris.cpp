@@ -183,10 +183,10 @@ void Tetris::drawField()
 
 		/* Draw the field */
 		/* Rows */
-		for(int i = 0; i < m_Field.size(); i++)
+		for(size_t i = 0; i < m_Field.size(); i++)
 		{
 			/* Individual block */
-			for(int j = 0; j < m_Field[i].size(); j++)
+			for(size_t j = 0; j < m_Field[i].size(); j++)
 			{
 				Block& block = m_Field[i][j];
 				if(!block.IsSet)
@@ -339,7 +339,7 @@ void Tetris::TimeMoveFallingTetramino()
 	/* Check with field, that movement is allowed */
 	for(const auto& block_coords : downmost_coords)
 	{
-		if((block_coords.y + 1) >= m_Field.size() || m_Field[block_coords.y + 1][block_coords.x].IsSet)
+		if(static_cast<size_t>(block_coords.y + 1) >= m_Field.size() || m_Field[block_coords.y + 1][block_coords.x].IsSet)
 		{
 			canBeMoved = false;
 			break;
@@ -370,7 +370,7 @@ void Tetris::MoveFallingTetraminoToSide(int where)
 	/* Check with field, that movement is allowed */
 	for(const auto& block_coords : sidemost_coords)
 	{
-		if((block_coords.x + where) < 0 || (block_coords.x + where) >= m_Field[0].size())
+		if((block_coords.x + where) < 0 || static_cast<size_t>(block_coords.x + where) >= m_Field[0].size())
 		{
 			canBeMoved = false;
 			break;
@@ -401,7 +401,7 @@ int Tetris::findLowestAllowedBlock()
 	int nearest_field_y_diff = 9999; /* Dummy value */
 	for(const auto& block_coord : downmost_coords)
 	{
-		for(int i = block_coord.y + 1; i < m_Field.size(); i++)
+		for(size_t i = block_coord.y + 1; i < m_Field.size(); i++)
 		{
 			if(!m_Field[i][block_coord.x].IsSet)
 			{
@@ -417,7 +417,7 @@ int Tetris::findLowestAllowedBlock()
 	}
 
 	/* No blocks are set underneith. Find lowest point of the tetramino */
-	if(nearest_field_y_diff >= m_Field.size())
+	if(static_cast<size_t>(nearest_field_y_diff) >= m_Field.size())
 	{
 		/* "Lowest" is a little wrong term. In our case Bottom line is y = 20 */
 		int lowest_y_point = -1;
@@ -871,7 +871,7 @@ void Tetris::checkAndRemoveLines()
 {
 	int lines_removed = 0;
 
-	for(int i = 0; i < m_Field.size(); i++)
+	for(size_t i = 0; i < m_Field.size(); i++)
 	{
 		/* Check for line completeness */
 		bool is_line_complete = true;
@@ -890,7 +890,7 @@ void Tetris::checkAndRemoveLines()
 		}
 
 		/* TODO: Add animation in the future if possible */
-		for(int j = i; j > 0; j--)
+		for(size_t j = i; j > 0; j--)
 		{
 			m_Field[j] = m_Field[j - 1];
 		}
