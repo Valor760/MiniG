@@ -408,7 +408,7 @@ int Tetris::findLowestAllowedBlock()
 				continue;
 			}
 
-			int coord_diff = i - block_coord.y - 1;
+			int coord_diff = (int)i - block_coord.y - 1;
 			if(coord_diff < nearest_field_y_diff)
 			{
 				nearest_field_y_diff = coord_diff;
