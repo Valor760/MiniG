@@ -50,6 +50,11 @@ const ImVec2 cTetrisFieldPos = cTetrisGuiPos;
 const ImVec2 cTetrisScoreBoardPos = {cTetrisGuiXPos + cTetrisFieldWidth, cTetrisGuiYPos};
 
 const double cFallTimeDelaySec = 1.0;
+
+const char score_text[] = "SCORE";
+const char next_text[] = "NEXT";
+const char start_text[] = "  Press\n  SPACE\nto start";
+const char end_text[] = "  Game\n  Over\n\n Press\n SPACE\n   to\nrestart";
 } /* namespace Consts */
 
 std::map<BlockColor, ImVec4> g_BlockColors = {
@@ -160,7 +165,7 @@ void Tetris::drawField()
 
 	/* Draw tetramino projection */
 	/* Draw this BEFORE the tetramino */
-	if(m_Textures[Texture::BlockProjection].IsReady())
+	if(m_Textures[Texture::BlockProjection].IsReady() && m_FallingTetramino)
 	{
 		int y_diff = findLowestAllowedBlock();
 
@@ -177,6 +182,7 @@ void Tetris::drawField()
 		}
 	}
 
+	/* Draw falling tetramino */
 	if(m_Textures[Texture::Block].IsReady())
 	{
 		const GLuint block_texture_id = m_Textures[Texture::Block].GetID();
@@ -205,16 +211,45 @@ void Tetris::drawField()
 		}
 
 		/* Draw the falling tetramino */
-		for(const auto& block_coords : m_FallingTetramino->OccupiedCells)
+		if(m_FallingTetramino)
 		{
-			/* X offsets by 1 because of walls */
-			ImGui::SetCursorPosX((float)((block_coords.x + 1) * Consts::cBlockEdgeSize));
-			ImGui::SetCursorPosY((float)(block_coords.y * Consts::cBlockEdgeSize));
-			ImGui::Image((void*)(int64_t)block_texture_id, block_size,
-					{0, 0}, {1, 1},
-					Vec4Norm(g_BlockColors[m_FallingTetramino->Color], 255)
-				);
+			for(const auto& block_coords : m_FallingTetramino->OccupiedCells)
+			{
+				/* X offsets by 1 because of walls */
+				ImGui::SetCursorPosX((float)((block_coords.x + 1) * Consts::cBlockEdgeSize));
+				ImGui::SetCursorPosY((float)(block_coords.y * Consts::cBlockEdgeSize));
+				ImGui::Image((void*)(int64_t)block_texture_id, block_size,
+						{0, 0}, {1, 1},
+						Vec4Norm(g_BlockColors[m_FallingTetramino->Color], 255)
+					);
+			}
 		}
+	}
+
+	/* Write text appropriate to game state */
+	if(m_GameState == GameState::Start)
+	{
+		ImGui::PushFont(m_ScoreBoardFont);
+		{
+			/* Move text a little */
+			float text_pos_x = (Consts::cTetrisFieldWidth - m_GameStartTextSize.x) / 2.0f;
+			float text_pos_y = (Consts::cTetrisFieldHeight - m_GameStartTextSize.y) / 2.0f;
+			ImGui::SetCursorPos({text_pos_x, text_pos_y});
+			ImGui::Text(Consts::start_text);
+		}
+		ImGui::PopFont();
+	}
+	else if(m_GameState == GameState::GameOver)
+	{
+		ImGui::PushFont(m_ScoreBoardFont);
+		{
+			/* Move text a little */
+			float text_pos_x = (Consts::cTetrisFieldWidth - m_GameOverTextSize.x) / 2.0f;
+			float text_pos_y = (Consts::cTetrisFieldHeight - m_GameOverTextSize.y) / 2.0f;
+			ImGui::SetCursorPos({text_pos_x, text_pos_y});
+			ImGui::Text(Consts::end_text);
+		}
+		ImGui::PopFont();
 	}
 
 	ImGui::End();
@@ -279,6 +314,7 @@ void Tetris::drawScoreBoard()
 	ImGui::PopFont();
 
 	/* Draw next tetramino */
+	if(m_NextTetramino)
 	{
 		ImVec2 prev_pos = ImGui::GetCursorPos();
 		int next_block_y = (int)(prev_pos.y / block_edge_size + 1);
@@ -321,7 +357,15 @@ void Tetris::applyTetraminoToField()
 	for(auto& block_coords : m_FallingTetramino->OccupiedCells)
 	{
 		Block& field_block = m_Field[block_coords.y][block_coords.x];
-		assert(!field_block.IsSet);
+
+		/* Game Over */
+		if(field_block.IsSet)
+		{
+			m_GameState = GameState::GameOver;
+			m_FallingTetramino = nullptr;
+			return;
+		}
+
 		field_block.Color = m_FallingTetramino->Color;
 		field_block.IsSet = true;
 	}
@@ -839,11 +883,25 @@ void Tetris::ProcessInput()
 	/* Drop tetramino on Space */
 	if(ImGui::IsKeyPressed(ImGuiKey_Space, false))
 	{
-		DropFallingTetramino();
+		if(m_GameState == GameState::InProgress)
+		{
+			DropFallingTetramino();
 
-		/* Tetramino has fallen apply it to the field */
-		m_PassedTime = 0.0;
-		return;
+			/* Tetramino has fallen apply it to the field */
+			m_PassedTime = 0.0;
+			return;
+		}
+		else
+		{
+			/* Start game on pressing Space */
+			m_GameState = GameState::InProgress;
+			m_FallingTetramino = GenerateTetramino();
+			m_NextTetramino = GenerateTetramino();
+			for(auto& row : m_Field)
+			{
+				row.fill({});
+			}
+		}
 	}
 
 	/* Rotate tetramino */
@@ -943,13 +1001,17 @@ void Tetris::OnAttach()
 		LOG_ERROR("Couldn't load BlockProjection texture!");
 	}
 
-	m_FallingTetramino = GenerateTetramino();
-	m_NextTetramino = GenerateTetramino();
+	/* Font stuff */
+	m_ScoreTextSize     = m_ScoreBoardFont->CalcTextSizeA(50.0f, FLT_MAX, 0.0f,
+			&Consts::score_text[0], &Consts::score_text[sizeof(Consts::score_text) - 1]);
+	m_NextTextSize      = m_ScoreBoardFont->CalcTextSizeA(50.0f, FLT_MAX, 0.0f,
+			&Consts::next_text[0], &Consts::next_text[sizeof(Consts::next_text) - 1]);
+	m_GameStartTextSize = m_ScoreBoardFont->CalcTextSizeA(50.0f, FLT_MAX, 0.0f,
+			&Consts::start_text[0], &Consts::start_text[sizeof(Consts::start_text) - 1]);
+	m_GameOverTextSize  = m_ScoreBoardFont->CalcTextSizeA(50.0f, FLT_MAX, 0.0f,
+			&Consts::end_text[0], &Consts::end_text[sizeof(Consts::end_text) - 1]);
 
-	const char score_text[] = "SCORE";
-	const char next_text[] = "NEXT";
-	m_ScoreTextSize = m_ScoreBoardFont->CalcTextSizeA(50.0f, FLT_MAX, 0.0f, &score_text[0], &score_text[5]);
-	m_NextTextSize  = m_ScoreBoardFont->CalcTextSizeA(50.0f, FLT_MAX, 0.0f, &next_text[0], &next_text[4]);
+	m_GameState = GameState::Start;
 }
 
 void Tetris::OnDetach()
@@ -976,21 +1038,45 @@ void Tetris::OnDetach()
 	}
 
 	m_PassedTime = 0.0;
+
+	m_GameState = GameState::ElementCount;
 }
 
 void Tetris::OnUpdate(double dt)
 {
-	m_PassedTime += dt;
-
-	ProcessInput();
-
-	if(m_PassedTime >= Consts::cFallTimeDelaySec)
+	switch(m_GameState)
 	{
-		m_PassedTime = 0.0;
-		TimeMoveFallingTetramino();
+		case GameState::Start:
+		{
+			
+			break;
+		}
+		case GameState::InProgress:
+		{
+			m_PassedTime += dt;
+
+			if(m_PassedTime >= Consts::cFallTimeDelaySec)
+			{
+				m_PassedTime = 0.0;
+				TimeMoveFallingTetramino();
+			}
+
+			checkAndRemoveLines();
+			break;
+		}
+		case GameState::GameOver:
+		{
+
+			break;
+		}
+		default:
+		{
+			LOG_ERROR("Unknown game state received: %d", m_GameState);
+			throw;
+		}
 	}
 
-	checkAndRemoveLines();
+	ProcessInput();
 
 	/* We will have one big window for all GUI elements for Tetris */
 	BeginTetrisGUI();

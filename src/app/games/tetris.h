@@ -37,6 +37,13 @@ enum class TetraminoShape
 	Shape_Count
 };
 
+enum class GameState
+{
+	Start, InProgress, GameOver,
+
+	ElementCount
+};
+
 struct Block
 {
 	bool IsSet = false;
@@ -113,8 +120,13 @@ class Tetris : public Game
 		std::shared_ptr<Tetramino> m_FallingTetramino = nullptr;
 		std::shared_ptr<Tetramino> m_NextTetramino = nullptr;
 
+		/* Font and text stuff */
 		ImFont* m_ScoreBoardFont = nullptr;
 		ImVec2 m_ScoreTextSize = {};
 		ImVec2 m_NextTextSize = {};
+		ImVec2 m_GameStartTextSize = {};
+		ImVec2 m_GameOverTextSize = {};
+
+		GameState m_GameState = GameState::ElementCount;
 };
 } /* namespace MiniG::Games */
