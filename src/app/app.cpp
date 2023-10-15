@@ -13,17 +13,25 @@
 
 namespace MiniG
 {
-static Games::Tetris GameTetris;
-static std::map<std::string, Games::Game*> g_GamesMap = {
-	{"Tetris", &GameTetris},
+std::map<std::string, Games::Game*> g_GamesMap = {
+	{"Tetris", new Games::Tetris()},
 };
 
 void MainApp::LoadGame(const std::string& game_name)
 {
+	LOG_DEBUG("");
+
 	if(m_CurrentGame)
 	{
+		LOG_DEBUG("Game[%s] is present. Clearing...", m_CurrentGame->m_GameName.c_str());
 		m_CurrentGame->OnDetach();
 		m_CurrentGame = nullptr;
+	}
+
+	if(game_name.empty())
+	{
+		LOG_DEBUG("No Game name was provided.");
+		return;
 	}
 
 	try
@@ -38,9 +46,10 @@ void MainApp::LoadGame(const std::string& game_name)
 	}
 }
 
-/* Init basic application settings */
 bool MainApp::Init()
 {
+	LOG_DEBUG("");
+
 	/* Init OpenGL and ImGui stuff */
 	/* FIXME: Read window width and height from some settings file */
 	/* TODO: Add asserts */
@@ -56,11 +65,18 @@ bool MainApp::Init()
 	ImGui_ImplGlfw_InitForOpenGL(m_Window.GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 130");
 
+	/* Load default imgui font as the first one */
+	ImGui::GetIO().Fonts->AddFontDefault();
+
+	static_cast<Games::Tetris*>(g_GamesMap["Tetris"])->LoadFont();
+
 	return true;
 }
 
 void MainApp::Run()
 {
+	LOG_DEBUG("");
+
 	/* Black color */
 	glClearColor(0, 0, 0, 1.0);
 	auto prev_time = std::chrono::steady_clock::now();

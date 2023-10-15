@@ -60,4 +60,9 @@ Layout Layout_MainMenu = {
 		&MM_Background_Window, &MM_Buttons_Window
 	},
 };
+
+void Init_LayoutMainMenu()
+{
+
+}
 } /* namespace MiniG::Gui */
