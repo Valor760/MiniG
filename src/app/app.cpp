@@ -1,5 +1,6 @@
 #include "app.h"
 #include "gui/layout.h"
+#include "games/tetris.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -7,12 +8,48 @@
 
 #include <exception>
 #include <iostream>
+#include <chrono>
+#include <map>
 
 namespace MiniG
 {
-/* Init basic application settings */
+std::map<std::string, Games::Game*> g_GamesMap = {
+	{"Tetris", new Games::Tetris()},
+};
+
+void MainApp::LoadGame(const std::string& game_name)
+{
+	LOG_DEBUG("");
+
+	if(m_CurrentGame)
+	{
+		LOG_DEBUG("Game[%s] is present. Clearing...", m_CurrentGame->m_GameName.c_str());
+		m_CurrentGame->OnDetach();
+		m_CurrentGame = nullptr;
+	}
+
+	if(game_name.empty())
+	{
+		LOG_DEBUG("No Game name was provided.");
+		return;
+	}
+
+	try
+	{
+		m_CurrentGame = g_GamesMap[game_name];
+		m_CurrentGame->OnAttach();
+	}
+	catch(std::exception& e)
+	{
+		LOG_ERROR("Couldn't find game with name - %s", game_name.c_str());
+		throw e; /* TODO: Do we actually need to re-throw exception? Maybe just return to main menu or smth? */
+	}
+}
+
 bool MainApp::Init()
 {
+	LOG_DEBUG("");
+
 	/* Init OpenGL and ImGui stuff */
 	/* FIXME: Read window width and height from some settings file */
 	/* TODO: Add asserts */
@@ -28,13 +65,21 @@ bool MainApp::Init()
 	ImGui_ImplGlfw_InitForOpenGL(m_Window.GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 130");
 
+	/* Load default imgui font as the first one */
+	ImGui::GetIO().Fonts->AddFontDefault();
+
+	static_cast<Games::Tetris*>(g_GamesMap["Tetris"])->LoadFont();
+
 	return true;
 }
 
 void MainApp::Run()
 {
+	LOG_DEBUG("");
+
 	/* Black color */
 	glClearColor(0, 0, 0, 1.0);
+	auto prev_time = std::chrono::steady_clock::now();
 
 	while(!glfwWindowShouldClose(m_Window.GetWindow()))
 	{
@@ -48,11 +93,16 @@ void MainApp::Run()
 		MGVec2 wnd_size = m_Window.GetSize();
 		glViewport(0, 0, wnd_size.x, wnd_size.y);
 
+		/* First draw any GUI than game elements on top */
+		/* In most cases this will draw a background while the game itself will draw its GUI */
 		Gui::LayoutManager::DrawLayout();
 		if(m_CurrentGame)
 		{
-			m_CurrentGame->OnUpdate();
+			const std::chrono::duration<double> delta_time = std::chrono::steady_clock::now() - prev_time;
+			m_CurrentGame->OnUpdate(delta_time.count());
 		}
+
+		prev_time = std::chrono::steady_clock::now();
 
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui::Render();
@@ -61,10 +111,5 @@ void MainApp::Run()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(m_Window.GetWindow());
 	}
-}
-
-MainApp::~MainApp()
-{
-	m_Window.DeInit();
 }
 } /* namespace MiniG */

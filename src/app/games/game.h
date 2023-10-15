@@ -6,11 +6,11 @@ namespace MiniG::Games
 class Game
 {
 	public:
-		virtual void OnAttach();
-		virtual void OnUpdate();
-		virtual void OnDetach();
+		virtual void OnAttach() = 0;
+		virtual void OnUpdate(double dt) = 0;
+		virtual void OnDetach() = 0;
 
-	private:
-		std::string m_GameName = "";
+	public:
+		const std::string m_GameName = "";
 };
-}
+} /* namespace MiniG::Games */

@@ -6,6 +6,7 @@ namespace MiniG::Gui
 {
 static BUTTON_CALLBACK_FUNC(SetWindowShouldClose)
 {
+	MINIG_UNUSED(args);
 	// glfwSetWindowShouldClose(Window::GetWindow(), GLFW_TRUE);
 }
 
@@ -59,4 +60,9 @@ Layout Layout_MainMenu = {
 		&MM_Background_Window, &MM_Buttons_Window
 	},
 };
+
+void Init_LayoutMainMenu()
+{
+
+}
 } /* namespace MiniG::Gui */
