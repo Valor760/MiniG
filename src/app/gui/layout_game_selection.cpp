@@ -30,6 +30,36 @@ static Button Game_Back_Button = {
 	.CallbackArgs = {LayoutName_SelectGame},
 };
 
+/* --- Snake --- */
+static LayoutWindow Snake_Background_Window = {
+	.Label      = "Background",
+	.Size       = WINDOW_SIZE_FULLSCREEN,
+	.Position   = POSITION_DEFAULT,
+	.Flags      = WINDOW_BACKGROUND_FLAGS,
+	.Items      = {
+		{ ItemType::Button, &Game_Back_Button },
+	},
+	.Background = Resources::Texture(),
+};
+
+Layout Layout_Snake = {
+	.Name = LayoutName_Snake,
+	.WindowStack = {
+		&Snake_Background_Window /* Other windows will be manually added in Tetris class */
+	},
+};
+
+static BUTTON_CALLBACK_FUNC(SelectSnake)
+{
+	MINIG_UNUSED(args);
+
+	LayoutManager::SwitchLayout({LayoutName_Snake});
+	MainApp::LoadGame("Snake");
+}
+/* --- Snake --- */
+
+
+/* --- Tetris --- */
 static LayoutWindow Tetris_Background_Window = {
 	.Label      = "Background",
 	.Size       = WINDOW_SIZE_FULLSCREEN,
@@ -56,6 +86,8 @@ static BUTTON_CALLBACK_FUNC(SelectTetris)
 	LayoutManager::SwitchLayout({LayoutName_Tetris});
 	MainApp::LoadGame("Tetris");
 }
+/* --- Tetris --- */
+
 
 static Button SG_Tetris_Button = {
 	.Label = "Tetris",
@@ -69,7 +101,7 @@ static Button SG_Snake_Button = {
 	.Label = "Snake",
 	.Size = {366, 100},
 	.Position = {616, 425},
-	.pButtonPressedCallback = nullptr,
+	.pButtonPressedCallback = SelectSnake,
 	.CallbackArgs = {}
 };
 

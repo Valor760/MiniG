@@ -11,6 +11,7 @@ namespace MiniG::Gui
 EXTERN_GETLAYOUT(MainMenu);
 EXTERN_GETLAYOUT(SelectGame);
 EXTERN_GETLAYOUT(Tetris);
+EXTERN_GETLAYOUT(Snake);
 
 /* Functions to init values, that can't be initialized during dynamic init */
 void Init_LayoutMainMenu();
