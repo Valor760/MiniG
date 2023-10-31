@@ -3,6 +3,8 @@
 
 namespace MiniG::Gui
 {
+#define MAKE_LAYOUT(X) Layout Layout_##X
+
 #define EXTERN_GETLAYOUT(X) \
 		extern Layout Layout_##X; \
 		inline Layout GetLayout_##X() { return Layout_##X; } \

@@ -42,7 +42,7 @@ static LayoutWindow Snake_Background_Window = {
 	.Background = Resources::Texture(),
 };
 
-Layout Layout_Snake = {
+MAKE_LAYOUT(Snake) = {
 	.Name = LayoutName_Snake,
 	.WindowStack = {
 		&Snake_Background_Window /* Other windows will be manually added in Tetris class */
@@ -71,7 +71,7 @@ static LayoutWindow Tetris_Background_Window = {
 	.Background = Resources::Texture(),
 };
 
-Layout Layout_Tetris = {
+MAKE_LAYOUT(Tetris) = {
 	.Name = LayoutName_Tetris,
 	.WindowStack = {
 		&Tetris_Background_Window /* Other windows will be manually added in Tetris class */
@@ -142,7 +142,7 @@ static LayoutWindow SG_Background_Window = {
 	.Items     = {},
 };
 
-Layout Layout_SelectGame = {
+MAKE_LAYOUT(SelectGame) = {
 	.Name = LayoutName_SelectGame,
 	.WindowStack = {
 		&SG_Background_Window, &SG_Buttons_Window
