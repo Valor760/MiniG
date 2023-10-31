@@ -33,3 +33,13 @@ struct MGVec2
 		return idx ? x : y;
 	}
 };
+
+static inline ImVec4 Vec4Norm(const ImVec4& vec4, int norm)
+{
+	return ImVec4(
+			vec4.x / norm,
+			vec4.y / norm,
+			vec4.z / norm,
+			vec4.w / norm
+		);
+}
