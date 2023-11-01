@@ -5,6 +5,7 @@
 
 #include <array>
 #include <map>
+#include <vector>
 
 namespace MiniG::Games
 {
@@ -13,6 +14,11 @@ enum class CellType
 	Empty, Head, Body, Fruit,
 
 	Count
+};
+
+enum class Direction
+{
+	Up, Down, Left, Right
 };
 
 class Snake : public Game
@@ -29,13 +35,16 @@ class Snake : public Game
 
 	private:
 		void drawField();
+		void processMovement();
 
 	private:
 		double m_PassedTime;
 
 		std::array<std::array<CellType, 60>, 35> m_Field;
+		std::vector<MGVec2<int>> m_SnakeBodyCells;
 		MGVec2<int> m_HeadPos;
 		MGVec2<int> m_FruitPos;
+		Direction m_MovementDirection;
 
 		std::map<CellType, Resources::Texture> m_Textures;
 };
