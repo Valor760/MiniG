@@ -190,7 +190,6 @@ void Snake::processMovement()
 		LOG_DEBUG("Adding the body at position x=%d y=%d", last_cell_pos.x, last_cell_pos.y);
 		m_SnakeBodyCells.push_back(last_cell_pos);
 		m_ShouldAddBody = false;
-		generateFruitNewPos();
 	}
 
 	/* Set to true later than the whole process, so it would be updated on the next move */
@@ -198,6 +197,7 @@ void Snake::processMovement()
 	{
 		LOG_DEBUG("We should eat eat the fruit");
 		m_ShouldAddBody = true;
+		generateFruitNewPos();
 	}
 
 	for(auto cell : m_SnakeBodyCells)
