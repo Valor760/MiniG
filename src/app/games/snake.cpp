@@ -110,7 +110,7 @@ void Snake::generateFruitNewPos()
 		{
 			if(m_Field[i][j] == CellType::Empty)
 			{
-				MGVec2<int> cell_pos = {j, i};
+				MGVec2<int> cell_pos = {(int)j, (int)i};
 				empty_cells.push_back(cell_pos);
 			}
 		}
