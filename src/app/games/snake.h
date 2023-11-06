@@ -36,9 +36,12 @@ class Snake : public Game
 	private:
 		void drawField();
 		void processMovement();
+		void processInput();
+		void tryApplyDirection(Direction dir);
 
 	private:
 		double m_PassedTime;
+		bool m_HasDirectionChanged;
 
 		std::array<std::array<CellType, 60>, 35> m_Field;
 		std::vector<MGVec2<int>> m_SnakeBodyCells;

@@ -57,6 +57,24 @@ static void BeginSnakeGUI()
 	ImGui::StyleColorsDark(nullptr); /* Bring back 'default' style */
 }
 
+static Direction GetOppositeDirection(Direction dir)
+{
+	switch(dir)
+	{
+		case Direction::Left:
+			return Direction::Right;
+		case Direction::Right:
+			return Direction::Left;
+		case Direction::Up:
+			return Direction::Down;
+		case Direction::Down:
+			return Direction::Up;
+	}
+
+	/* We should never reach here */
+	throw;
+}
+
 void Snake::drawField()
 {
 	const ImVec2 cell_size = {(float)Constant::CellSize.x, (float)Constant::CellSize.y};
@@ -87,6 +105,7 @@ void Snake::processMovement()
 		return;
 	}
 	m_PassedTime = 0.0;
+	m_HasDirectionChanged = false;
 
 	/* Move head */
 	const MGVec2<int>& direction = g_MovementDirection[m_MovementDirection];
@@ -138,6 +157,38 @@ void Snake::processMovement()
 	}
 }
 
+void Snake::tryApplyDirection(Direction dir)
+{
+	if(dir != GetOppositeDirection(m_MovementDirection) && !m_HasDirectionChanged)
+	{
+		m_MovementDirection = dir;
+		m_HasDirectionChanged = true;
+	}
+}
+
+void Snake::processInput()
+{
+	/* A or arrow left */
+	if(ImGui::IsKeyPressed(ImGuiKey_A) || ImGui::IsKeyPressed(ImGuiKey_LeftArrow))
+	{
+		tryApplyDirection(Direction::Left);
+	}
+	/* D or arrow right */
+	else if(ImGui::IsKeyPressed(ImGuiKey_D) || ImGui::IsKeyPressed(ImGuiKey_RightArrow))
+	{
+		tryApplyDirection(Direction::Right);
+	}
+	/* S or arrow down */
+	else if(ImGui::IsKeyPressed(ImGuiKey_S) || ImGui::IsKeyPressed(ImGuiKey_DownArrow))
+	{
+		tryApplyDirection(Direction::Down);
+	}
+	else if(ImGui::IsKeyPressed(ImGuiKey_W) || ImGui::IsKeyPressed(ImGuiKey_UpArrow))
+	{
+		tryApplyDirection(Direction::Up);
+	}
+}
+
 void Snake::OnAttach()
 {
 	LOG_DEBUG("Attaching Snake");
@@ -152,6 +203,8 @@ void Snake::OnAttach()
 	}
 
 	m_PassedTime = 0.0;
+	m_HasDirectionChanged = false;
+
 	m_SnakeBodyCells.clear();
 
 	/* Snake will start at specific positions */
@@ -192,6 +245,7 @@ void Snake::OnUpdate(double dt)
 {
 	m_PassedTime += dt;
 	processMovement();
+	processInput();
 
 	BeginSnakeGUI();
 
