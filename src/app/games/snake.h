@@ -38,6 +38,7 @@ class Snake : public Game
 		void processMovement();
 		void processInput();
 		void tryApplyDirection(Direction dir);
+		void generateFruitNewPos();
 
 	private:
 		double m_PassedTime;

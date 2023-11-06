@@ -1,5 +1,7 @@
 #include "snake.h"
 
+#include <random>
+
 namespace MiniG::Games
 {
 namespace Constant
@@ -98,6 +100,30 @@ void Snake::drawField()
 	}
 }
 
+void Snake::generateFruitNewPos()
+{
+	/* Generate a pool of empty cells */
+	std::vector<MGVec2<int>> empty_cells = {};
+	for(size_t i = 0; i < m_Field.size(); i++)
+	{
+		for(size_t j = 0; j < m_Field[i].size(); j++)
+		{
+			if(m_Field[i][j] == CellType::Empty)
+			{
+				MGVec2<int> cell_pos = {j, i};
+				empty_cells.push_back(cell_pos);
+			}
+		}
+	}
+
+	const int empty_cells_num = (int)empty_cells.size();
+	srand(time(nullptr));
+
+	/* Apply the new fruit position */
+	m_FruitPos = empty_cells[ rand() % empty_cells_num ];
+	m_Field[m_FruitPos.y][m_FruitPos.x] = CellType::Fruit;
+}
+
 void Snake::processMovement()
 {
 	if(m_PassedTime < Constant::MovementDelay)
@@ -164,6 +190,7 @@ void Snake::processMovement()
 		LOG_DEBUG("Adding the body at position x=%d y=%d", last_cell_pos.x, last_cell_pos.y);
 		m_SnakeBodyCells.push_back(last_cell_pos);
 		m_ShouldAddBody = false;
+		generateFruitNewPos();
 	}
 
 	/* Set to true later than the whole process, so it would be updated on the next move */
