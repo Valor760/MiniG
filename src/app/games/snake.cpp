@@ -24,7 +24,7 @@ const MGVec2<int> SnakeHeadStartingPos = {50, 18};
 const MGVec2<int> FruitStartingPos = {10, 18};
 const MGVec2<int> CellSize = {CellEdgeSize, CellEdgeSize};
 
-const double MovementDelay = 0.5;
+const double MovementDelay = 0.25;
 } /* namespace Constant */
 
 std::map<CellType, ImVec4> g_CellColor = {
@@ -109,7 +109,7 @@ void Snake::processMovement()
 
 	/* Move head */
 	const MGVec2<int>& direction = g_MovementDirection[m_MovementDirection];
-	const MGVec2<int> head_prev_pos = m_HeadPos;
+	MGVec2<int> head_prev_pos = m_HeadPos;
 	m_HeadPos.x += direction.x;
 	m_HeadPos.y += direction.y;
 	if(m_HeadPos.y >= Constant::RowNumber || m_HeadPos.x >= Constant::ColNumber)
@@ -126,29 +126,51 @@ void Snake::processMovement()
 		m_Field[cell.y][cell.x] = CellType::Empty;
 	}
 
-	Direction prev_direction = m_MovementDirection;
+	MGVec2<int> last_cell_pos;
+	if(m_SnakeBodyCells.size())
+	{
+		last_cell_pos = m_SnakeBodyCells.back();
+	}
+	else
+	{
+		last_cell_pos = head_prev_pos;
+	}
 	
 	/* Move the whole body */
+	MGVec2<int> prev_body_pos = {-1, -1};
 	for(size_t i = 0; i < m_SnakeBodyCells.size(); i++)
 	{
 		MGVec2<int>& cell_pos = m_SnakeBodyCells[i];
-		const MGVec2<int>& dir_vec = g_MovementDirection[prev_direction];
 		MGVec2 diff = {-1, -1};
 
-		if((i + 1) < m_SnakeBodyCells.size())
+		/* Compare the first cell with head */
+		if(i == 0)
 		{
-			diff = cell_pos - m_SnakeBodyCells[i + 1];
-			for(Direction dir = Direction::Up; dir <= Direction::Right; dir = (Direction)((int)dir + 1))
-			{
-				if(diff == g_MovementDirection[dir])
-				{
-					prev_direction = dir;
-				}
-			}
+			diff = head_prev_pos - cell_pos;
+		}
+		else
+		{
+			diff = prev_body_pos - cell_pos;
 		}
 
-		cell_pos.x += dir_vec.x;
-		cell_pos.y += dir_vec.y;
+		prev_body_pos = cell_pos;
+
+		cell_pos.x += diff.x;
+		cell_pos.y += diff.y;
+	}
+
+	if(m_ShouldAddBody)
+	{
+		LOG_DEBUG("Adding the body at position x=%d y=%d", last_cell_pos.x, last_cell_pos.y);
+		m_SnakeBodyCells.push_back(last_cell_pos);
+		m_ShouldAddBody = false;
+	}
+
+	/* Set to true later than the whole process, so it would be updated on the next move */
+	if(m_HeadPos == m_FruitPos)
+	{
+		LOG_DEBUG("We should eat eat the fruit");
+		m_ShouldAddBody = true;
 	}
 
 	for(auto cell : m_SnakeBodyCells)
@@ -204,6 +226,7 @@ void Snake::OnAttach()
 
 	m_PassedTime = 0.0;
 	m_HasDirectionChanged = false;
+	m_ShouldAddBody = false;
 
 	m_SnakeBodyCells.clear();
 
