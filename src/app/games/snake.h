@@ -23,6 +23,11 @@ enum class Direction
 
 class Snake : public Game
 {
+	enum class GameState
+	{
+		Start, InProgress, GameOver,
+	};
+
 	public:
 		Snake() : Game() {}
 
@@ -39,6 +44,7 @@ class Snake : public Game
 		void processInput();
 		void tryApplyDirection(Direction dir);
 		void generateFruitNewPos();
+		bool steppedOnTail(const MGVec2<int>& head_coord);
 
 	private:
 		double m_PassedTime;
@@ -52,5 +58,7 @@ class Snake : public Game
 		Direction m_MovementDirection;
 
 		std::map<CellType, Resources::Texture> m_Textures;
+
+		GameState m_GameState = GameState::Start;
 };
 } /* namespace MiniG::Games */

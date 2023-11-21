@@ -124,6 +124,18 @@ void Snake::generateFruitNewPos()
 	m_Field[m_FruitPos.y][m_FruitPos.x] = CellType::Fruit;
 }
 
+bool Snake::steppedOnTail(const MGVec2<int>& head_coord)
+{
+	for(const auto& cell : m_SnakeBodyCells)
+	{
+		if(head_coord == cell)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void Snake::processMovement()
 {
 	if(m_PassedTime < Constant::MovementDelay)
@@ -138,9 +150,12 @@ void Snake::processMovement()
 	MGVec2<int> head_prev_pos = m_HeadPos;
 	m_HeadPos.x += direction.x;
 	m_HeadPos.y += direction.y;
-	if(m_HeadPos.y >= Constant::RowNumber || m_HeadPos.x >= Constant::ColNumber)
+	if(m_HeadPos.y >= Constant::RowNumber || m_HeadPos.y < 0 ||
+	   m_HeadPos.x >= Constant::ColNumber || m_HeadPos.x < 0 ||
+	   steppedOnTail(m_HeadPos))
 	{
 		m_HeadPos = head_prev_pos;
+		m_GameState = GameState::GameOver;
 		return;
 	}
 
@@ -236,6 +251,29 @@ void Snake::processInput()
 	{
 		tryApplyDirection(Direction::Up);
 	}
+
+	if(ImGui::IsKeyPressed(ImGuiKey_Space, false))
+	{
+		if(m_GameState != GameState::InProgress)
+		{
+			m_GameState = GameState::InProgress;
+
+			/* Clear any leftovers */
+			for(auto& row : m_Field)
+			{
+				row.fill({});
+			}
+			m_SnakeBodyCells.clear();
+
+			/* Snake will start at specific positions */
+			m_HeadPos = Constant::SnakeHeadStartingPos;
+			m_FruitPos = Constant::FruitStartingPos;
+			m_Field[m_HeadPos.y][m_HeadPos.x] = CellType::Head;
+			m_Field[m_FruitPos.y][m_FruitPos.x] = CellType::Fruit;
+
+			m_MovementDirection = Direction::Left;
+		}
+	}
 }
 
 void Snake::OnAttach()
@@ -256,14 +294,6 @@ void Snake::OnAttach()
 	m_ShouldAddBody = false;
 
 	m_SnakeBodyCells.clear();
-
-	/* Snake will start at specific positions */
-	m_HeadPos = Constant::SnakeHeadStartingPos;
-	m_FruitPos = Constant::FruitStartingPos;
-	m_Field[m_HeadPos.y][m_HeadPos.x] = CellType::Head;
-	m_Field[m_FruitPos.y][m_FruitPos.x] = CellType::Fruit;
-
-	m_MovementDirection = Direction::Left;
 
 	/* Create textures */
 	m_Textures[CellType::Empty] = Resources::Texture(g_CellColor[CellType::Empty], Constant::CellSize, true);
@@ -293,8 +323,18 @@ void Snake::OnAttach()
 
 void Snake::OnUpdate(double dt)
 {
-	m_PassedTime += dt;
-	processMovement();
+	switch(m_GameState)
+	{
+		case GameState::InProgress:
+		{
+			m_PassedTime += dt;
+			processMovement();
+			break;
+		}
+		case GameState::Start:
+		case GameState::GameOver:
+			break;
+	}
 	processInput();
 
 	BeginSnakeGUI();

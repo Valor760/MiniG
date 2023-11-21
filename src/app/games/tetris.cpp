@@ -1029,7 +1029,7 @@ void Tetris::OnDetach()
 
 	m_PassedTime = 0.0;
 
-	m_GameState = GameState::ElementCount;
+	m_GameState = GameState::Start;
 }
 
 void Tetris::OnUpdate(double dt)
