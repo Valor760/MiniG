@@ -178,21 +178,14 @@ void Snake::processMovement()
 	}
 	
 	/* Move the whole body */
-	MGVec2<int> prev_body_pos = {-1, -1};
+	MGVec2<int> prev_body_pos = head_prev_pos;
 	for(size_t i = 0; i < m_SnakeBodyCells.size(); i++)
 	{
 		MGVec2<int>& cell_pos = m_SnakeBodyCells[i];
 		MGVec2 diff = {-1, -1};
 
 		/* Compare the first cell with head */
-		if(i == 0)
-		{
-			diff = head_prev_pos - cell_pos;
-		}
-		else
-		{
-			diff = prev_body_pos - cell_pos;
-		}
+		diff = prev_body_pos - cell_pos;
 
 		prev_body_pos = cell_pos;
 
