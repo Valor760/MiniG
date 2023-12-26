@@ -66,7 +66,7 @@ static Button SG_Tetris_Button = {
 };
 
 static Button SG_Snake_Button = {
-	.Label = "Snake",
+	.Label = "Coming Soon",
 	.Size = {366, 100},
 	.Position = {616, 425},
 	.pButtonPressedCallback = nullptr,
@@ -74,7 +74,7 @@ static Button SG_Snake_Button = {
 };
 
 static Button SG_TODO_Button = {
-	.Label = "TODO",
+	.Label = "Coming Soon",
 	.Size = {366, 100},
 	.Position = {1032, 425},
 	.pButtonPressedCallback = nullptr,

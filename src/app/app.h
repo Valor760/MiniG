@@ -17,6 +17,8 @@ class MainApp
 		/* Load a desired game. Empty string will unload the game if it was previosly loaded */
 		static void LoadGame(const std::string& game_name);
 
+		static GLFWwindow* GetWindow();
+
 	private:
 		MainApp() = delete;
 		~MainApp() = delete;
