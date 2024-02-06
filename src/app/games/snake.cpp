@@ -27,6 +27,9 @@ const MGVec2<int> FruitStartingPos = {10, 18};
 const MGVec2<int> CellSize = {CellEdgeSize, CellEdgeSize};
 
 const double MovementDelay = 0.25;
+
+const char start_text[] = "  Press  SPACE  to start";
+const char end_text[] = "        Game Over\n\nPress SPACE to restart";
 } /* namespace Constant */
 
 std::map<CellType, ImVec4> g_CellColor = {
@@ -77,6 +80,21 @@ static Direction GetOppositeDirection(Direction dir)
 	throw;
 }
 
+void Snake::LoadFont()
+{
+	const char* font = "assets/Score-Font.ttf";
+	LOG_DEBUG("Loading font (%s)", font);
+	ImGuiIO& io = ImGui::GetIO();
+	m_Font = io.Fonts->AddFontFromFileTTF(font, 50.0f);
+	if(!m_Font)
+	{
+		LOG_ERROR("Failed to load font (%s)", font);
+		throw;
+	}
+
+	LOG_DEBUG("Font successfully loaded");
+}
+
 void Snake::drawField()
 {
 	const ImVec2 cell_size = {(float)Constant::CellSize.x, (float)Constant::CellSize.y};
@@ -97,6 +115,32 @@ void Snake::drawField()
 					Vec4Norm(g_CellColor[cell_type], 255)
 				);
 		}
+	}
+
+	/* Text should be on top of field */
+	if(m_GameState == GameState::Start)
+	{
+		ImGui::PushFont(m_Font);
+		{
+			/* Move text a little */
+			float text_pos_x = (Constant::FieldWidth - m_GameStartTextSize.x) / 2.0f;
+			float text_pos_y = (Constant::FieldHeight - m_GameStartTextSize.y) / 2.0f;
+			ImGui::SetCursorPos({text_pos_x, text_pos_y});
+			ImGui::Text(Constant::start_text);
+		}
+		ImGui::PopFont();
+	}
+	else if(m_GameState == GameState::GameOver)
+	{
+		ImGui::PushFont(m_Font);
+		{
+			/* Move text a little */
+			float text_pos_x = (Constant::FieldWidth - m_GameOverTextSize.x) / 2.0f;
+			float text_pos_y = (Constant::FieldHeight - m_GameOverTextSize.y) / 2.0f;
+			ImGui::SetCursorPos({text_pos_x, text_pos_y});
+			ImGui::Text(Constant::end_text);
+		}
+		ImGui::PopFont();
 	}
 }
 
@@ -260,9 +304,14 @@ void Snake::processInput()
 
 			/* Snake will start at specific positions */
 			m_HeadPos = Constant::SnakeHeadStartingPos;
+			/* Place one body piece behind the head */
+			const MGVec2<int> body_cell = {m_HeadPos.x + 1, m_HeadPos.y};
+			m_SnakeBodyCells.push_back(body_cell);
 			m_FruitPos = Constant::FruitStartingPos;
+
 			m_Field[m_HeadPos.y][m_HeadPos.x] = CellType::Head;
 			m_Field[m_FruitPos.y][m_FruitPos.x] = CellType::Fruit;
+			m_Field[body_cell.y][body_cell.x] = CellType::Body;
 
 			m_MovementDirection = Direction::Left;
 		}
@@ -285,6 +334,7 @@ void Snake::OnAttach()
 	m_PassedTime = 0.0;
 	m_HasDirectionChanged = false;
 	m_ShouldAddBody = false;
+	m_GameState = GameState::Start;
 
 	m_SnakeBodyCells.clear();
 
@@ -312,6 +362,12 @@ void Snake::OnAttach()
 	{
 		LOG_ERROR("Failed to create Fruit texture");
 	}
+
+	assert(m_Font != nullptr);
+	m_GameStartTextSize = m_Font->CalcTextSizeA(50.0f, FLT_MAX, 0.0f,
+			&Constant::start_text[0], &Constant::start_text[sizeof(Constant::start_text) - 1]);
+	m_GameOverTextSize  = m_Font->CalcTextSizeA(50.0f, FLT_MAX, 0.0f,
+			&Constant::end_text[0], &Constant::end_text[sizeof(Constant::end_text) - 1]);
 }
 
 void Snake::OnUpdate(double dt)

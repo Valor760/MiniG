@@ -35,6 +35,8 @@ class Snake : public Game
 		virtual void OnUpdate(double dt);
 		virtual void OnDetach();
 
+		void LoadFont();
+
 	public:
 		const std::string m_GameName = "Snake";
 
@@ -60,5 +62,9 @@ class Snake : public Game
 		std::map<CellType, Resources::Texture> m_Textures;
 
 		GameState m_GameState = GameState::Start;
+
+		ImFont* m_Font;
+		ImVec2 m_GameStartTextSize;
+		ImVec2 m_GameOverTextSize;
 };
 } /* namespace MiniG::Games */

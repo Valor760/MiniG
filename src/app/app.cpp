@@ -71,6 +71,7 @@ bool MainApp::Init()
 	ImGui::GetIO().Fonts->AddFontDefault();
 
 	static_cast<Games::Tetris*>(g_GamesMap["Tetris"])->LoadFont();
+	static_cast<Games::Snake*>(g_GamesMap["Snake"])->LoadFont();
 
 	return true;
 }
