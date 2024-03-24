@@ -53,7 +53,8 @@ class Snake : public Game
 		bool m_HasDirectionChanged;
 		bool m_ShouldAddBody;
 
-		std::array<std::array<CellType, 60>, 35> m_Field;
+		/* FIXME: Use global constant */
+		std::array<std::array<CellType, 40>, 25> m_Field;
 		std::vector<MGVec2<int>> m_SnakeBodyCells;
 		MGVec2<int> m_HeadPos;
 		MGVec2<int> m_FruitPos;

@@ -12,8 +12,8 @@ const int BaseWindowHeight = 900;
 const int PaddingYpx = 100;
 const int PaddingXpx = 200;
 
-const int RowNumber = 35;
-const int ColNumber = 60;
+const int RowNumber = 25;
+const int ColNumber = 40;
 
 const int FieldWidth = BaseWindowWidth - PaddingXpx * 2;
 const int FieldHeight = BaseWindowHeight - PaddingYpx * 2;
@@ -22,8 +22,8 @@ const ImVec2 FieldSize = {FieldWidth, FieldHeight};
 
 const int CellEdgeSize = FieldWidth / ColNumber; /* Should be 35 in both ways */
 
-const MGVec2<int> SnakeHeadStartingPos = {50, 18};
-const MGVec2<int> FruitStartingPos = {10, 18};
+const MGVec2<int> SnakeHeadStartingPos = {34, 11};
+const MGVec2<int> FruitStartingPos = {4, 11};
 const MGVec2<int> CellSize = {CellEdgeSize, CellEdgeSize};
 
 const double MovementDelay = 0.25;
@@ -108,12 +108,18 @@ void Snake::drawField()
 				continue;
 			}
 
-			ImGui::SetCursorPosX((float)(j * Constant::CellEdgeSize));
-			ImGui::SetCursorPosY((float)(i * Constant::CellEdgeSize));
-			ImGui::Image((void*)(int64_t)m_Textures[cell_type].GetID(), cell_size,
-					{0, 0}, {1, 1},
-					Vec4Norm(g_CellColor[cell_type], 255)
-				);
+			ImVec2 cursor_pos = {(float)(j * Constant::CellEdgeSize), (float)(i * Constant::CellEdgeSize)};
+
+			/* Draw background cell below actual image */
+			if(cell_type != CellType::Empty)
+			{
+				/* For some reasons the pos is being reset when first image is drawn, need to reset */
+				ImGui::SetCursorPos(cursor_pos);
+				ImGui::Image((void*)(int64_t)m_Textures[CellType::Empty].GetID(), cell_size);
+			}
+
+			ImGui::SetCursorPos(cursor_pos);
+			ImGui::Image((void*)(int64_t)m_Textures[cell_type].GetID(), cell_size);
 		}
 	}
 
