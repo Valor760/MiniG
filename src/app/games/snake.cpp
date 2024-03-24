@@ -357,7 +357,8 @@ void Snake::OnAttach()
 		LOG_ERROR("Failed to create Body texture");
 	}
 
-	m_Textures[CellType::Fruit] = Resources::Texture(g_CellColor[CellType::Fruit], Constant::CellSize, true);
+	// m_Textures[CellType::Fruit] = Resources::Texture(g_CellColor[CellType::Fruit], Constant::CellSize, true);
+	m_Textures[CellType::Fruit] = Resources::Texture("assets/snake-fruit.png");
 	if(!m_Textures[CellType::Fruit].IsReady())
 	{
 		LOG_ERROR("Failed to create Fruit texture");
