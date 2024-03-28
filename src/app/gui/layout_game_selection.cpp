@@ -152,5 +152,6 @@ MAKE_LAYOUT(SelectGame) = {
 void Init_LayoutGameSelection()
 {
 	Tetris_Background_Window.Background = Resources::Texture("assets/tetris-game-bg.png");
+	Snake_Background_Window.Background  = Resources::Texture("assets/snake-bg.jpg");
 }
 } /* namespace MiniG::Gui */
