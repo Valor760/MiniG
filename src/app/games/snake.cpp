@@ -345,7 +345,7 @@ void Snake::OnAttach()
 	m_SnakeBodyCells.clear();
 
 	/* Create textures */
-	m_Textures[CellType::Empty] = Resources::Texture(g_CellColor[CellType::Empty], Constant::CellSize, true);
+	m_Textures[CellType::Empty] = Resources::Texture("assets/snake-field.jpg");
 	if(!m_Textures[CellType::Empty].IsReady())
 	{
 		LOG_ERROR("Failed to create Empty texture");
