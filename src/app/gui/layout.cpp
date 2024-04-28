@@ -46,6 +46,26 @@ static bool draw_button(const Button* button)
 	return false;
 }
 
+static inline void LayoutPushStyle(LayoutWindow* window)
+{
+	for(auto& s : window->Style)
+	{
+		if(s.Type == StyleVarType::Float)
+		{
+			ImGui::PushStyleVar(s.Var, std::get<float>(s.Value));
+		}
+		else /* StyleVarType::Vec2 */
+		{
+			ImGui::PushStyleVar(s.Var, std::get<ImVec2>(s.Value));
+		}
+	}
+}
+
+static inline void LayoutPopStyle(LayoutWindow* window)
+{
+	ImGui::PopStyleVar(window->Style.size());
+}
+
 bool LayoutManager::DrawLayoutImpl()
 {
 	/* TODO: Do we need to store layout in pointers? */
@@ -54,6 +74,8 @@ bool LayoutManager::DrawLayoutImpl()
 		ImGui::SetNextWindowPos(window->Position);
 		ImGui::SetNextWindowSize(window->Size);
 		ImGui::Begin(window->Label.c_str(), nullptr, window->Flags);
+
+		LayoutPushStyle(window);
 
 		/* Draw background */
 		if(window->Background.IsReady())
@@ -73,6 +95,7 @@ bool LayoutManager::DrawLayoutImpl()
 					if(m_NeedSwitchLayout)
 					{
 						m_NeedSwitchLayout = false;
+						LayoutPopStyle(window);
 						ImGui::End();
 						goto Exit;
 					}
@@ -85,6 +108,7 @@ bool LayoutManager::DrawLayoutImpl()
 				}
 			}
 		}
+		LayoutPopStyle(window);
 		ImGui::End();
 	}
 

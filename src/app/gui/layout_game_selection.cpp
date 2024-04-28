@@ -40,6 +40,9 @@ static LayoutWindow Snake_Background_Window = {
 		{ ItemType::Button, &Game_Back_Button },
 	},
 	.Background = Resources::Texture(),
+	.Style = {
+		{ .Var = ImGuiStyleVar_FrameRounding, .Type = StyleVarType::Float, .Value = 10.0f },
+	},
 };
 
 MAKE_LAYOUT(Snake) = {
@@ -69,6 +72,9 @@ static LayoutWindow Tetris_Background_Window = {
 		{ ItemType::Button, &Game_Back_Button },
 	},
 	.Background = Resources::Texture(),
+	.Style = {
+		{ .Var = ImGuiStyleVar_FrameRounding, .Type = StyleVarType::Float, .Value = 10.0f },
+	},
 };
 
 MAKE_LAYOUT(Tetris) = {
@@ -131,6 +137,9 @@ static LayoutWindow SG_Buttons_Window = {
 		{ ItemType::Button, &SG_Snake_Button },
 		{ ItemType::Button, &SG_TODO_Button },
 		{ ItemType::Button, &SG_Back_Button },
+	},
+	.Style = {
+		{ .Var = ImGuiStyleVar_FrameRounding, .Type = StyleVarType::Float, .Value = 10.0f },
 	},
 };
 

@@ -26,6 +26,18 @@ enum class ItemType
 	None, Button, Text
 };
 
+enum class StyleVarType
+{
+	Float, Vec2
+};
+
+struct StyleVar
+{
+	ImGuiStyleVar Var;
+	StyleVarType Type;
+	std::variant<ImVec2, float> Value;
+};
+
 struct Button
 {
 	std::string Label                        = "";
@@ -59,6 +71,7 @@ struct LayoutWindow
 	ImGuiWindowFlags Flags        = 0;
 	std::vector<Item> Items       = {};
 	Resources::Texture Background = Resources::Texture();
+	std::vector<StyleVar> Style   = {};
 };
 
 struct Layout

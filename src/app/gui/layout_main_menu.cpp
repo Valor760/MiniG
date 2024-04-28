@@ -44,6 +44,9 @@ static LayoutWindow MM_Buttons_Window = {
 		{ ItemType::Button, &MM_Settings_Button },
 		{ ItemType::Button, &MM_Exit_Button },
 	},
+	.Style = {
+		{ .Var = ImGuiStyleVar_FrameRounding, .Type = StyleVarType::Float, .Value = 10.0f },
+	},
 };
 
 static LayoutWindow MM_Background_Window = {
