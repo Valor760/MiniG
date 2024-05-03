@@ -1,6 +1,7 @@
 #include "app.h"
 #include "gui/layout.h"
 #include "games/tetris.h"
+#include "games/snake.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -14,7 +15,8 @@
 namespace MiniG
 {
 std::map<std::string, Games::Game*> g_GamesMap = {
-	{"Tetris", new Games::Tetris()},
+	{ "Tetris", new Games::Tetris() },
+	{ "Snake",  new Games::Snake()  },
 };
 
 void MainApp::LoadGame(const std::string& game_name)
@@ -69,6 +71,7 @@ bool MainApp::Init()
 	ImGui::GetIO().Fonts->AddFontDefault();
 
 	static_cast<Games::Tetris*>(g_GamesMap["Tetris"])->LoadFont();
+	static_cast<Games::Snake*>(g_GamesMap["Snake"])->LoadFont();
 
 	return true;
 }

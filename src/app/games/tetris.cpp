@@ -104,16 +104,6 @@ static void BeginTetrisGUI()
 	ImGui::StyleColorsDark(nullptr); /* Bring back 'default' style */
 }
 
-static inline ImVec4 Vec4Norm(const ImVec4& vec4, int norm)
-{
-	return ImVec4(
-			vec4.x / norm,
-			vec4.y / norm,
-			vec4.z / norm,
-			vec4.w / norm
-		);
-}
-
 void Tetris::drawField()
 {
 	ImGuiStyle* style = &ImGui::GetStyle();
@@ -1039,7 +1029,7 @@ void Tetris::OnDetach()
 
 	m_PassedTime = 0.0;
 
-	m_GameState = GameState::ElementCount;
+	m_GameState = GameState::Start;
 }
 
 void Tetris::OnUpdate(double dt)

@@ -37,12 +37,12 @@ enum class TetraminoShape
 	Shape_Count
 };
 
-enum class GameState
-{
-	Start, InProgress, GameOver,
+// enum class GameState
+// {
+// 	Start, InProgress, GameOver,
 
-	ElementCount
-};
+// 	ElementCount
+// };
 
 struct Block
 {
@@ -79,6 +79,11 @@ enum MoveAction
 */
 class Tetris : public Game
 {
+	enum class GameState
+	{
+		Start, InProgress, GameOver,
+	};
+
 	public:
 		Tetris() : Game() {}
 
@@ -127,6 +132,6 @@ class Tetris : public Game
 		ImVec2 m_GameStartTextSize = {};
 		ImVec2 m_GameOverTextSize = {};
 
-		GameState m_GameState = GameState::ElementCount;
+		GameState m_GameState = GameState::Start;
 };
 } /* namespace MiniG::Games */

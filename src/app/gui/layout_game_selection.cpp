@@ -30,6 +30,36 @@ static Button Game_Back_Button = {
 	.CallbackArgs = {LayoutName_SelectGame},
 };
 
+/* --- Snake --- */
+static LayoutWindow Snake_Background_Window = {
+	.Label      = "Background",
+	.Size       = WINDOW_SIZE_FULLSCREEN,
+	.Position   = POSITION_DEFAULT,
+	.Flags      = WINDOW_BACKGROUND_FLAGS,
+	.Items      = {
+		{ ItemType::Button, &Game_Back_Button },
+	},
+	.Background = Resources::Texture(),
+};
+
+MAKE_LAYOUT(Snake) = {
+	.Name = LayoutName_Snake,
+	.WindowStack = {
+		&Snake_Background_Window /* Other windows will be manually added in Tetris class */
+	},
+};
+
+static BUTTON_CALLBACK_FUNC(SelectSnake)
+{
+	MINIG_UNUSED(args);
+
+	LayoutManager::SwitchLayout({LayoutName_Snake});
+	MainApp::LoadGame("Snake");
+}
+/* --- Snake --- */
+
+
+/* --- Tetris --- */
 static LayoutWindow Tetris_Background_Window = {
 	.Label      = "Background",
 	.Size       = WINDOW_SIZE_FULLSCREEN,
@@ -41,7 +71,7 @@ static LayoutWindow Tetris_Background_Window = {
 	.Background = Resources::Texture(),
 };
 
-Layout Layout_Tetris = {
+MAKE_LAYOUT(Tetris) = {
 	.Name = LayoutName_Tetris,
 	.WindowStack = {
 		&Tetris_Background_Window /* Other windows will be manually added in Tetris class */
@@ -56,6 +86,8 @@ static BUTTON_CALLBACK_FUNC(SelectTetris)
 	LayoutManager::SwitchLayout({LayoutName_Tetris});
 	MainApp::LoadGame("Tetris");
 }
+/* --- Tetris --- */
+
 
 static Button SG_Tetris_Button = {
 	.Label = "Tetris",
@@ -69,7 +101,7 @@ static Button SG_Snake_Button = {
 	.Label = "Snake",
 	.Size = {366, 100},
 	.Position = {616, 425},
-	.pButtonPressedCallback = nullptr,
+	.pButtonPressedCallback = SelectSnake,
 	.CallbackArgs = {}
 };
 
@@ -110,7 +142,7 @@ static LayoutWindow SG_Background_Window = {
 	.Items     = {},
 };
 
-Layout Layout_SelectGame = {
+MAKE_LAYOUT(SelectGame) = {
 	.Name = LayoutName_SelectGame,
 	.WindowStack = {
 		&SG_Background_Window, &SG_Buttons_Window
@@ -120,5 +152,6 @@ Layout Layout_SelectGame = {
 void Init_LayoutGameSelection()
 {
 	Tetris_Background_Window.Background = Resources::Texture("assets/tetris-game-bg.png");
+	Snake_Background_Window.Background  = Resources::Texture("assets/snake-bg.jpg");
 }
 } /* namespace MiniG::Gui */

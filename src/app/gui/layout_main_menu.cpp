@@ -54,7 +54,7 @@ static LayoutWindow MM_Background_Window = {
 	.Items     = {},
 };
 
-Layout Layout_MainMenu = {
+MAKE_LAYOUT(MainMenu) = {
 	.Name = LayoutName_MainMenu,
 	.WindowStack = {
 		&MM_Background_Window, &MM_Buttons_Window
