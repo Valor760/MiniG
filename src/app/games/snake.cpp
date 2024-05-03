@@ -9,10 +9,10 @@ namespace Constant
 const int BaseWindowWidth = 1600;
 const int BaseWindowHeight = 900;
 
-const int PaddingYpx = 100;
+const int PaddingYpx = 90;
 const int PaddingXpx = 200;
 
-const int RowNumber = 25;
+const int RowNumber = 24;
 const int ColNumber = 40;
 
 const int FieldWidth = BaseWindowWidth - PaddingXpx * 2;
@@ -20,7 +20,7 @@ const int FieldHeight = BaseWindowHeight - PaddingYpx * 2;
 const ImVec2 FieldPos = {PaddingXpx, PaddingYpx};
 const ImVec2 FieldSize = {FieldWidth, FieldHeight};
 
-const int CellEdgeSize = FieldWidth / ColNumber; /* Should be 35 in both ways */
+const int CellEdgeSize = FieldWidth / ColNumber;
 
 const MGVec2<int> SnakeHeadStartingPos = {34, 11};
 const MGVec2<int> FruitStartingPos = {4, 11};
@@ -34,7 +34,6 @@ const char end_text[] = "        Game Over\n\nPress SPACE to restart";
 
 std::map<CellType, ImVec4> g_CellColor = {
 	{CellType::Empty,  ImVec4(  0,   0,   0, 255)},
-	{CellType::Head,   ImVec4(102, 255,  51, 255)},
 	{CellType::Body,   ImVec4( 51, 204,   0, 255)},
 	{CellType::Fruit,  ImVec4(255,  51,   0, 255)},
 };
@@ -74,6 +73,24 @@ static Direction GetOppositeDirection(Direction dir)
 			return Direction::Down;
 		case Direction::Down:
 			return Direction::Up;
+	}
+
+	/* We should never reach here */
+	throw;
+}
+
+static CellType DirectionToHeadDir(Direction dir)
+{
+	switch(dir)
+	{
+		case Direction::Left:
+			return CellType::HeadLeft;
+		case Direction::Right:
+			return CellType::HeadRight;
+		case Direction::Up:
+			return CellType::HeadUp;
+		case Direction::Down:
+			return CellType::HeadDown;
 	}
 
 	/* We should never reach here */
@@ -210,7 +227,7 @@ void Snake::processMovement()
 	}
 
 	m_Field[head_prev_pos.y][head_prev_pos.x] = CellType::Empty;
-	m_Field[m_HeadPos.y][m_HeadPos.x] = CellType::Head;
+	m_Field[m_HeadPos.y][m_HeadPos.x] = DirectionToHeadDir(m_MovementDirection);
 
 	for(auto cell : m_SnakeBodyCells)
 	{
@@ -266,8 +283,13 @@ void Snake::processMovement()
 
 void Snake::tryApplyDirection(Direction dir)
 {
+	/*
+		FIXME: If we don't check for m_HasDirectionChanged then movement is responsive, BUT snake head might hit tail,
+		if the direction was changed several times before the movement happenned
+	*/
 	if(dir != GetOppositeDirection(m_MovementDirection) && !m_HasDirectionChanged)
 	{
+		LOG_DEBUG("Changing direction to %d", static_cast<int>(dir));
 		m_MovementDirection = dir;
 		m_HasDirectionChanged = true;
 	}
@@ -315,7 +337,7 @@ void Snake::processInput()
 			m_SnakeBodyCells.push_back(body_cell);
 			m_FruitPos = Constant::FruitStartingPos;
 
-			m_Field[m_HeadPos.y][m_HeadPos.x] = CellType::Head;
+			m_Field[m_HeadPos.y][m_HeadPos.x] = CellType::HeadLeft;
 			m_Field[m_FruitPos.y][m_FruitPos.x] = CellType::Fruit;
 			m_Field[body_cell.y][body_cell.x] = CellType::Body;
 
@@ -351,10 +373,28 @@ void Snake::OnAttach()
 		LOG_ERROR("Failed to create Empty texture");
 	}
 
-	m_Textures[CellType::Head] = Resources::Texture(g_CellColor[CellType::Head], Constant::CellSize, true);
-	if(!m_Textures[CellType::Head].IsReady())
+	m_Textures[CellType::HeadDown] = Resources::Texture("assets/snake-head-down.png");
+	if(!m_Textures[CellType::HeadDown].IsReady())
 	{
-		LOG_ERROR("Failed to create Head texture");
+		LOG_ERROR("Failed to create HeadDown texture");
+	}
+
+	m_Textures[CellType::HeadLeft] = Resources::Texture("assets/snake-head-left.png");
+	if(!m_Textures[CellType::HeadLeft].IsReady())
+	{
+		LOG_ERROR("Failed to create HeadLeft texture");
+	}
+
+	m_Textures[CellType::HeadUp] = Resources::Texture("assets/snake-head-up.png");
+	if(!m_Textures[CellType::HeadUp].IsReady())
+	{
+		LOG_ERROR("Failed to create HeadUp texture");
+	}
+
+	m_Textures[CellType::HeadRight] = Resources::Texture("assets/snake-head-right.png");
+	if(!m_Textures[CellType::HeadRight].IsReady())
+	{
+		LOG_ERROR("Failed to create HeadRight texture");
 	}
 
 	m_Textures[CellType::Body] = Resources::Texture(g_CellColor[CellType::Body], Constant::CellSize, true);

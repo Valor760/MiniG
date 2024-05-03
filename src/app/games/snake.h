@@ -11,7 +11,9 @@ namespace MiniG::Games
 {
 enum class CellType
 {
-	Empty, Head, Body, Fruit,
+	Empty,
+	HeadDown, HeadLeft, HeadUp, HeadRight,
+	Body, Fruit,
 
 	Count
 };
