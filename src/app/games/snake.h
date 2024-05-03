@@ -13,7 +13,8 @@ enum class CellType
 {
 	Empty,
 	HeadDown, HeadLeft, HeadUp, HeadRight,
-	Body, Fruit,
+	BodyBlack, BodyOrange,
+	Fruit,
 
 	Count
 };
@@ -56,7 +57,7 @@ class Snake : public Game
 		bool m_ShouldAddBody;
 
 		/* FIXME: Use global constant */
-		std::array<std::array<CellType, 40>, 25> m_Field;
+		std::array<std::array<CellType, 30>, 18> m_Field;
 		std::vector<MGVec2<int>> m_SnakeBodyCells;
 		MGVec2<int> m_HeadPos;
 		MGVec2<int> m_FruitPos;

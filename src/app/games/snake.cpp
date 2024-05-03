@@ -12,8 +12,8 @@ const int BaseWindowHeight = 900;
 const int PaddingYpx = 90;
 const int PaddingXpx = 200;
 
-const int RowNumber = 24;
-const int ColNumber = 40;
+const int RowNumber = 18;
+const int ColNumber = 30;
 
 const int FieldWidth = BaseWindowWidth - PaddingXpx * 2;
 const int FieldHeight = BaseWindowHeight - PaddingYpx * 2;
@@ -22,8 +22,8 @@ const ImVec2 FieldSize = {FieldWidth, FieldHeight};
 
 const int CellEdgeSize = FieldWidth / ColNumber;
 
-const MGVec2<int> SnakeHeadStartingPos = {34, 11};
-const MGVec2<int> FruitStartingPos = {4, 11};
+const MGVec2<int> SnakeHeadStartingPos = {25, 8};
+const MGVec2<int> FruitStartingPos = {4, 8};
 const MGVec2<int> CellSize = {CellEdgeSize, CellEdgeSize};
 
 const double MovementDelay = 0.25;
@@ -33,9 +33,10 @@ const char end_text[] = "        Game Over\n\nPress SPACE to restart";
 } /* namespace Constant */
 
 std::map<CellType, ImVec4> g_CellColor = {
-	{CellType::Empty,  ImVec4(  0,   0,   0, 255)},
-	{CellType::Body,   ImVec4( 51, 204,   0, 255)},
-	{CellType::Fruit,  ImVec4(255,  51,   0, 255)},
+	{CellType::Empty,       ImVec4(  0,   0,   0, 255)},
+	{CellType::BodyBlack,   ImVec4( 15,  15,  15, 255)},
+	{CellType::BodyOrange,  ImVec4(255, 130,   5, 255)},
+	{CellType::Fruit,       ImVec4(255,  51,   0, 255)},
 };
 
 std::map<Direction, MGVec2<int>> g_MovementDirection = {
@@ -275,9 +276,17 @@ void Snake::processMovement()
 		generateFruitNewPos();
 	}
 
-	for(auto cell : m_SnakeBodyCells)
+	for(size_t i = 0; i < m_SnakeBodyCells.size(); i++)
 	{
-		m_Field[cell.y][cell.x] = CellType::Body;
+		const auto& cell = m_SnakeBodyCells[i];
+		if((i % 4) < 2)
+		{
+			m_Field[cell.y][cell.x] = CellType::BodyOrange;
+		}
+		else
+		{
+			m_Field[cell.y][cell.x] = CellType::BodyBlack;
+		}
 	}
 }
 
@@ -339,7 +348,7 @@ void Snake::processInput()
 
 			m_Field[m_HeadPos.y][m_HeadPos.x] = CellType::HeadLeft;
 			m_Field[m_FruitPos.y][m_FruitPos.x] = CellType::Fruit;
-			m_Field[body_cell.y][body_cell.x] = CellType::Body;
+			m_Field[body_cell.y][body_cell.x] = CellType::BodyOrange;
 
 			m_MovementDirection = Direction::Left;
 		}
@@ -397,13 +406,18 @@ void Snake::OnAttach()
 		LOG_ERROR("Failed to create HeadRight texture");
 	}
 
-	m_Textures[CellType::Body] = Resources::Texture(g_CellColor[CellType::Body], Constant::CellSize, true);
-	if(!m_Textures[CellType::Body].IsReady())
+	m_Textures[CellType::BodyBlack] = Resources::Texture("assets/snake-body-black.png");
+	if(!m_Textures[CellType::BodyBlack].IsReady())
 	{
-		LOG_ERROR("Failed to create Body texture");
+		LOG_ERROR("Failed to create Black Body texture");
 	}
 
-	// m_Textures[CellType::Fruit] = Resources::Texture(g_CellColor[CellType::Fruit], Constant::CellSize, true);
+	m_Textures[CellType::BodyOrange] = Resources::Texture("assets/snake-body-orange.png");
+	if(!m_Textures[CellType::BodyOrange].IsReady())
+	{
+		LOG_ERROR("Failed to create Orange Body texture");
+	}
+
 	m_Textures[CellType::Fruit] = Resources::Texture("assets/snake-fruit.png");
 	if(!m_Textures[CellType::Fruit].IsReady())
 	{
