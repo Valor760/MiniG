@@ -224,6 +224,13 @@ void Tetris::drawField()
 			/* Move text a little */
 			float text_pos_x = (Consts::cTetrisFieldWidth - m_GameStartTextSize.x) / 2.0f;
 			float text_pos_y = (Consts::cTetrisFieldHeight - m_GameStartTextSize.y) / 2.0f;
+			/* Draw Shadow */
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
+			ImGui::SetCursorPos({text_pos_x + 5, text_pos_y + 5});
+			ImGui::Text(Consts::start_text);
+			ImGui::PopStyleColor();
+
+			/* Draw Normal text */
 			ImGui::SetCursorPos({text_pos_x, text_pos_y});
 			ImGui::Text(Consts::start_text);
 		}
@@ -236,6 +243,13 @@ void Tetris::drawField()
 			/* Move text a little */
 			float text_pos_x = (Consts::cTetrisFieldWidth - m_GameOverTextSize.x) / 2.0f;
 			float text_pos_y = (Consts::cTetrisFieldHeight - m_GameOverTextSize.y) / 2.0f;
+			/* Draw Shadow */
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
+			ImGui::SetCursorPos({text_pos_x + 5, text_pos_y + 5});
+			ImGui::Text(Consts::end_text);
+			ImGui::PopStyleColor();
+
+			/* Draw Normal text */
 			ImGui::SetCursorPos({text_pos_x, text_pos_y});
 			ImGui::Text(Consts::end_text);
 		}

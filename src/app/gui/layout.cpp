@@ -32,23 +32,36 @@ static bool draw_button(const Button* button)
 		return false;
 	}
 
-	/* TODO: Add ImGui::PushStyleColor */
+	bool button_pressed = false;
+
+	if(button->IsShadow)
+	{
+		/* TODO: Change shadow color */
+		/* Hardcoded text shadow */
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.3f, 0.9f, 1.0f));
+	}
+
 	ImGui::SetCursorPos(button->Position);
 	if(ImGui::Button(button->Label.c_str(), button->Size))
 	{
 		if(button->pButtonPressedCallback)
 		{
 			button->pButtonPressedCallback(button->CallbackArgs);
-			return true;
+			button_pressed = true;
 		}
 	}
 
-	return false;
+	if(button->IsShadow)
+	{
+		ImGui::PopStyleColor();
+	}
+
+	return button_pressed;
 }
 
 static inline void LayoutPushStyle(LayoutWindow* window)
 {
-	for(auto& s : window->Style)
+	for(const auto& s : window->Style)
 	{
 		if(s.Type == StyleVarType::Float)
 		{
@@ -59,10 +72,25 @@ static inline void LayoutPushStyle(LayoutWindow* window)
 			ImGui::PushStyleVar(s.Var, std::get<ImVec2>(s.Value));
 		}
 	}
+
+	for(const auto& c : window->Color)
+	{
+		ImGui::PushStyleColor(c.Type, c.Color);
+	}
+
+	if(window->Font)
+	{
+		ImGui::PushFont(window->Font);
+	}
 }
 
 static inline void LayoutPopStyle(LayoutWindow* window)
 {
+	if(window->Font)
+	{
+		ImGui::PopFont();
+	}
+	ImGui::PopStyleColor(window->Color.size());
 	ImGui::PopStyleVar(window->Style.size());
 }
 

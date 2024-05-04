@@ -131,6 +131,13 @@ void Snake::drawField()
 			/* Move text a little */
 			float text_pos_x = (Constant::FieldWidth - m_GameStartTextSize.x) / 2.0f;
 			float text_pos_y = (Constant::FieldHeight - m_GameStartTextSize.y) / 2.0f;
+			/* Draw Shadow */
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+			ImGui::SetCursorPos({text_pos_x + 5, text_pos_y + 5});
+			ImGui::Text(Constant::start_text);
+			ImGui::PopStyleColor();
+
+			/* Draw Normal text */
 			ImGui::SetCursorPos({text_pos_x, text_pos_y});
 			ImGui::Text(Constant::start_text);
 		}
@@ -143,6 +150,13 @@ void Snake::drawField()
 			/* Move text a little */
 			float text_pos_x = (Constant::FieldWidth - m_GameOverTextSize.x) / 2.0f;
 			float text_pos_y = (Constant::FieldHeight - m_GameOverTextSize.y) / 2.0f;
+			/* Draw Shadow */
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+			ImGui::SetCursorPos({text_pos_x + 5, text_pos_y + 5});
+			ImGui::Text(Constant::end_text);
+			ImGui::PopStyleColor();
+
+			/* Draw Normal text */
 			ImGui::SetCursorPos({text_pos_x, text_pos_y});
 			ImGui::Text(Constant::end_text);
 		}

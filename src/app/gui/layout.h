@@ -38,6 +38,12 @@ struct StyleVar
 	std::variant<ImVec2, float> Value;
 };
 
+struct StyleColor
+{
+	ImGuiCol Type;
+	ImVec4 Color;
+};
+
 struct Button
 {
 	std::string Label                        = "";
@@ -45,6 +51,7 @@ struct Button
 	ImVec2 Position                          = {0, 0}; /* Upper left corner position */
 	button_callback_t pButtonPressedCallback = nullptr;
 	std::vector<std::string> CallbackArgs    = {};
+	bool IsShadow                            = false; /* WORKAROUND: ImGui doesn't have shadows for text */
 };
 
 struct Text
@@ -72,6 +79,8 @@ struct LayoutWindow
 	std::vector<Item> Items       = {};
 	Resources::Texture Background = Resources::Texture();
 	std::vector<StyleVar> Style   = {};
+	std::vector<StyleColor> Color = {};
+	ImFont* Font                  = nullptr;
 };
 
 struct Layout
