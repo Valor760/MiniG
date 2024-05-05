@@ -36,9 +36,7 @@ static bool draw_button(const Button* button)
 
 	if(button->IsShadow)
 	{
-		/* TODO: Change shadow color */
 		/* Hardcoded text shadow */
-		// ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.3f, 0.9f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.1f, 0.55f, 1.0f));
 	}
 

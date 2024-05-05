@@ -28,7 +28,7 @@ const MGVec2<int> CellSize = {CellEdgeSize, CellEdgeSize};
 
 const double MovementDelay = 0.25;
 
-const char start_text[] = "  Press  SPACE  to start";
+const char start_text[] = " Press SPACE or (X) to start";
 const char end_text[] = "        Game Over\n\nPress SPACE to restart";
 } /* namespace Constant */
 
@@ -290,26 +290,26 @@ void Snake::tryApplyDirection(Direction dir)
 void Snake::processInput()
 {
 	/* A or arrow left */
-	if(ImGui::IsKeyPressed(ImGuiKey_A) || ImGui::IsKeyPressed(ImGuiKey_LeftArrow))
+	if(ImGui::IsKeyPressed(ImGuiKey_A) || ImGui::IsKeyPressed(ImGuiKey_LeftArrow) || ImGui::IsKeyPressed(ImGuiKey_GamepadDpadLeft))
 	{
 		tryApplyDirection(Direction::Left);
 	}
 	/* D or arrow right */
-	else if(ImGui::IsKeyPressed(ImGuiKey_D) || ImGui::IsKeyPressed(ImGuiKey_RightArrow))
+	else if(ImGui::IsKeyPressed(ImGuiKey_D) || ImGui::IsKeyPressed(ImGuiKey_RightArrow) || ImGui::IsKeyPressed(ImGuiKey_GamepadDpadRight))
 	{
 		tryApplyDirection(Direction::Right);
 	}
 	/* S or arrow down */
-	else if(ImGui::IsKeyPressed(ImGuiKey_S) || ImGui::IsKeyPressed(ImGuiKey_DownArrow))
+	else if(ImGui::IsKeyPressed(ImGuiKey_S) || ImGui::IsKeyPressed(ImGuiKey_DownArrow) || ImGui::IsKeyPressed(ImGuiKey_GamepadDpadDown))
 	{
 		tryApplyDirection(Direction::Down);
 	}
-	else if(ImGui::IsKeyPressed(ImGuiKey_W) || ImGui::IsKeyPressed(ImGuiKey_UpArrow))
+	else if(ImGui::IsKeyPressed(ImGuiKey_W) || ImGui::IsKeyPressed(ImGuiKey_UpArrow) || ImGui::IsKeyPressed(ImGuiKey_GamepadDpadUp))
 	{
 		tryApplyDirection(Direction::Up);
 	}
 
-	if(ImGui::IsKeyPressed(ImGuiKey_Space, false))
+	if(ImGui::IsKeyPressed(ImGuiKey_Space, false) || ImGui::IsKeyPressed(ImGuiKey_GamepadFaceDown, false))
 	{
 		if(m_GameState != GameState::InProgress)
 		{
