@@ -48,6 +48,11 @@ void MainApp::LoadGame(const std::string& game_name)
 	}
 }
 
+GLFWwindow* MainApp::GetWindow()
+{
+	return m_Window.GetWindow();
+}
+
 bool MainApp::Init()
 {
 	LOG_DEBUG("");

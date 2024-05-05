@@ -1,13 +1,14 @@
 #include "layout.h"
 #include "layout_common.h"
 #include "app/window.h"
+#include "app/app.h"
 
 namespace MiniG::Gui
 {
 static BUTTON_CALLBACK_FUNC(SetWindowShouldClose)
 {
 	MINIG_UNUSED(args);
-	// glfwSetWindowShouldClose(Window::GetWindow(), GLFW_TRUE);
+	glfwSetWindowShouldClose(MainApp::GetWindow(), GLFW_TRUE);
 }
 
 static Button MM_SinglePlayer_Button = {
