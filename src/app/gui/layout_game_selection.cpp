@@ -228,6 +228,7 @@ void Init_LayoutGameSelection()
 
 	Tetris_Background_Window.Background = Resources::Texture("assets/tetris-game-bg.png");
 	Snake_Background_Window.Background  = Resources::Texture("assets/snake-bg.jpg");
+	SG_Background_Window.Background     = Resources::Texture("assets/game-select-bg.png");
 
 	ImGuiIO& io = ImGui::GetIO();
 	SG_Buttons_Window.Font = io.Fonts->AddFontFromFileTTF("assets/Score-Font.ttf", 75.0f);

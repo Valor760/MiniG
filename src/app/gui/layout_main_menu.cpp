@@ -86,6 +86,9 @@ MAKE_LAYOUT(MainMenu) = {
 void Init_LayoutMainMenu()
 {
 	LOG_DEBUG("");
+
+	MM_Background_Window.Background = Resources::Texture("assets/main-menu-bg.png");
+
 	ImGuiIO& io = ImGui::GetIO();
 	MM_Buttons_Window.Font = io.Fonts->AddFontFromFileTTF("assets/Score-Font.ttf", 75.0f);
 	assert(MM_Buttons_Window.Font);
