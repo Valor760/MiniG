@@ -53,8 +53,8 @@ const double cFallTimeDelaySec = 1.0;
 
 const char score_text[] = "SCORE";
 const char next_text[] = "NEXT";
-const char start_text[] = "  Press\n  SPACE\nto start";
-const char end_text[] = "  Game\n  Over\n\n Press\n SPACE\n   to\nrestart";
+const char start_text[] = "  Press\n  SPACE\n  or (X)\nto start";
+const char end_text[] = "  Game\n  Over\n\n Press\n SPACE\n or (X)\n   to\nrestart";
 } /* namespace Consts */
 
 std::map<BlockColor, ImVec4> g_BlockColors = {
@@ -102,16 +102,6 @@ static void BeginTetrisGUI()
 	ImGui::Begin("Tetris GUI", nullptr, ImGuiWindowFlags_NoDecoration);
 	
 	ImGui::StyleColorsDark(nullptr); /* Bring back 'default' style */
-}
-
-static inline ImVec4 Vec4Norm(const ImVec4& vec4, int norm)
-{
-	return ImVec4(
-			vec4.x / norm,
-			vec4.y / norm,
-			vec4.z / norm,
-			vec4.w / norm
-		);
 }
 
 void Tetris::drawField()
@@ -234,6 +224,13 @@ void Tetris::drawField()
 			/* Move text a little */
 			float text_pos_x = (Consts::cTetrisFieldWidth - m_GameStartTextSize.x) / 2.0f;
 			float text_pos_y = (Consts::cTetrisFieldHeight - m_GameStartTextSize.y) / 2.0f;
+			/* Draw Shadow */
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.1f, 0.55f, 1.0f));
+			ImGui::SetCursorPos({text_pos_x + 5, text_pos_y + 5});
+			ImGui::Text(Consts::start_text);
+			ImGui::PopStyleColor();
+
+			/* Draw Normal text */
 			ImGui::SetCursorPos({text_pos_x, text_pos_y});
 			ImGui::Text(Consts::start_text);
 		}
@@ -246,6 +243,13 @@ void Tetris::drawField()
 			/* Move text a little */
 			float text_pos_x = (Consts::cTetrisFieldWidth - m_GameOverTextSize.x) / 2.0f;
 			float text_pos_y = (Consts::cTetrisFieldHeight - m_GameOverTextSize.y) / 2.0f;
+			/* Draw Shadow */
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.1f, 0.55f, 1.0f));
+			ImGui::SetCursorPos({text_pos_x + 5, text_pos_y + 5});
+			ImGui::Text(Consts::end_text);
+			ImGui::PopStyleColor();
+
+			/* Draw Normal text */
 			ImGui::SetCursorPos({text_pos_x, text_pos_y});
 			ImGui::Text(Consts::end_text);
 		}
@@ -862,26 +866,26 @@ void Tetris::ProcessInput()
 	bool moveRight = false;
 
 	/* A or arrow left */
-	if(ImGui::IsKeyPressed(ImGuiKey_A) || ImGui::IsKeyPressed(ImGuiKey_LeftArrow))
+	if(ImGui::IsKeyPressed(ImGuiKey_A) || ImGui::IsKeyPressed(ImGuiKey_LeftArrow) || ImGui::IsKeyPressed(ImGuiKey_GamepadDpadLeft))
 	{
 		moveLeft = true;
 	}
 
 	/* D or arrow right */
-	if(ImGui::IsKeyPressed(ImGuiKey_D) || ImGui::IsKeyPressed(ImGuiKey_RightArrow))
+	if(ImGui::IsKeyPressed(ImGuiKey_D) || ImGui::IsKeyPressed(ImGuiKey_RightArrow) || ImGui::IsKeyPressed(ImGuiKey_GamepadDpadRight))
 	{
 		moveRight = true;
 	}
 
 	/* S or arrow down */
-	if(ImGui::IsKeyPressed(ImGuiKey_S) || ImGui::IsKeyPressed(ImGuiKey_DownArrow))
+	if(ImGui::IsKeyPressed(ImGuiKey_S) || ImGui::IsKeyPressed(ImGuiKey_DownArrow) || ImGui::IsKeyPressed(ImGuiKey_GamepadDpadDown))
 	{
 		/* Increase passed time by a little bit to quicken the fall */
 		m_PassedTime += Consts::cFallTimeDelaySec * 0.75;
 	}
 
 	/* Drop tetramino on Space */
-	if(ImGui::IsKeyPressed(ImGuiKey_Space, false))
+	if(ImGui::IsKeyPressed(ImGuiKey_Space, false) || ImGui::IsKeyPressed(ImGuiKey_GamepadFaceDown, false))
 	{
 		if(m_GameState == GameState::InProgress)
 		{
@@ -905,7 +909,7 @@ void Tetris::ProcessInput()
 	}
 
 	/* Rotate tetramino */
-	if(ImGui::IsKeyPressed(ImGuiKey_R, false))
+	if(ImGui::IsKeyPressed(ImGuiKey_R, false) || ImGui::IsKeyPressed(ImGuiKey_GamepadFaceUp, false))
 	{
 		rorateFallingTetramino();
 	}
@@ -1039,7 +1043,7 @@ void Tetris::OnDetach()
 
 	m_PassedTime = 0.0;
 
-	m_GameState = GameState::ElementCount;
+	m_GameState = GameState::Start;
 }
 
 void Tetris::OnUpdate(double dt)

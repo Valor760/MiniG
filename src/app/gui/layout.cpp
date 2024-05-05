@@ -4,7 +4,8 @@
 namespace MiniG::Gui
 {
 const static std::vector<Layout(*)()> g_LayoutFuncs = {
-	GetLayout_MainMenu, GetLayout_SelectGame, GetLayout_Tetris
+	GetLayout_MainMenu, GetLayout_SelectGame, GetLayout_Tetris,
+	GetLayout_Snake,
 };
 
 const std::vector<void(*)()> g_LayoutInitFuncs = {
@@ -31,18 +32,65 @@ static bool draw_button(const Button* button)
 		return false;
 	}
 
-	/* TODO: Add ImGui::PushStyleColor */
+	bool button_pressed = false;
+
+	if(button->IsShadow)
+	{
+		/* Hardcoded text shadow */
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 0.1f, 0.55f, 1.0f));
+	}
+
 	ImGui::SetCursorPos(button->Position);
 	if(ImGui::Button(button->Label.c_str(), button->Size))
 	{
 		if(button->pButtonPressedCallback)
 		{
 			button->pButtonPressedCallback(button->CallbackArgs);
-			return true;
+			button_pressed = true;
 		}
 	}
 
-	return false;
+	if(button->IsShadow)
+	{
+		ImGui::PopStyleColor();
+	}
+
+	return button_pressed;
+}
+
+static inline void LayoutPushStyle(LayoutWindow* window)
+{
+	for(const auto& s : window->Style)
+	{
+		if(s.Type == StyleVarType::Float)
+		{
+			ImGui::PushStyleVar(s.Var, std::get<float>(s.Value));
+		}
+		else /* StyleVarType::Vec2 */
+		{
+			ImGui::PushStyleVar(s.Var, std::get<ImVec2>(s.Value));
+		}
+	}
+
+	for(const auto& c : window->Color)
+	{
+		ImGui::PushStyleColor(c.Type, c.Color);
+	}
+
+	if(window->Font)
+	{
+		ImGui::PushFont(window->Font);
+	}
+}
+
+static inline void LayoutPopStyle(LayoutWindow* window)
+{
+	if(window->Font)
+	{
+		ImGui::PopFont();
+	}
+	ImGui::PopStyleColor(window->Color.size());
+	ImGui::PopStyleVar(window->Style.size());
 }
 
 bool LayoutManager::DrawLayoutImpl()
@@ -53,6 +101,8 @@ bool LayoutManager::DrawLayoutImpl()
 		ImGui::SetNextWindowPos(window->Position);
 		ImGui::SetNextWindowSize(window->Size);
 		ImGui::Begin(window->Label.c_str(), nullptr, window->Flags);
+
+		LayoutPushStyle(window);
 
 		/* Draw background */
 		if(window->Background.IsReady())
@@ -72,6 +122,7 @@ bool LayoutManager::DrawLayoutImpl()
 					if(m_NeedSwitchLayout)
 					{
 						m_NeedSwitchLayout = false;
+						LayoutPopStyle(window);
 						ImGui::End();
 						goto Exit;
 					}
@@ -84,6 +135,7 @@ bool LayoutManager::DrawLayoutImpl()
 				}
 			}
 		}
+		LayoutPopStyle(window);
 		ImGui::End();
 	}
 
