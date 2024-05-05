@@ -72,6 +72,7 @@ bool MainApp::Init()
 
 	static_cast<Games::Tetris*>(g_GamesMap["Tetris"])->LoadFont();
 	static_cast<Games::Snake*>(g_GamesMap["Snake"])->LoadFont();
+	(void) Gui::LayoutManager::Get(); /* Init LayoutManager with all fonts and other stuff */
 
 	return true;
 }
