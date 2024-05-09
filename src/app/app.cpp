@@ -1,5 +1,5 @@
 #include "app.h"
-#include "gui/layout.h"
+#include "gui/layout_common.h"
 #include "games/tetris.h"
 #include "games/snake.h"
 
@@ -98,6 +98,14 @@ void MainApp::Run()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+		if(Gui::LayoutManager::GetCurrentLayoutName() == Gui::LayoutName_MainMenu)
+		{
+			if(ImGui::IsKeyPressed(ImGuiKey_Escape) || ImGui::IsKeyPressed(ImGuiKey_GamepadBack))
+			{
+				glfwSetWindowShouldClose(m_Window.GetWindow(), true);
+			}
+		}
 
 		MGVec2 wnd_size = m_Window.GetSize();
 		glViewport(0, 0, wnd_size.x, wnd_size.y);

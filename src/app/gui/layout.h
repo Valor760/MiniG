@@ -109,6 +109,11 @@ class LayoutManager
 			return Get().DrawLayoutImpl();
 		}
 
+		static inline std::string GetCurrentLayoutName()
+		{
+			return Get().m_CurrentLayout.Name;
+		}
+
 	private:
 		LayoutManager();
 		LayoutManager(const LayoutManager&) = delete;
