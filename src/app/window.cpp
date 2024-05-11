@@ -64,6 +64,12 @@ bool Window::Init(int width, int height)
 	glfwSetWindowUserPointer(m_Window, this);
 	glfwSetWindowSizeCallback(m_Window, GLFW_WindowSizeCallback);
 
+	if(!gladLoadGL(glfwGetProcAddress))
+	{
+		LOG_ERROR("Can't initialize GLAD");
+		return false;
+	}
+
 	return true;
 }
 

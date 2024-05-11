@@ -27,9 +27,9 @@ add_library(imgui
 
 set(COMMON_LIBS glfw3 imgui GLAD)
 if(UNIX)
-	set(OS_LIBS pthread GL dl)
+	set(OS_LIBS pthread dl)
 else()
-	set(OS_LIBS opengl32)
+	set(OS_LIBS)
 endif()
 
 target_link_libraries(${EXEC} PUBLIC ${OS_LIBS} ${COMMON_LIBS})

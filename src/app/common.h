@@ -14,6 +14,8 @@
 
 /* EXTERNAL INCLUDES */
 #include "imgui/imgui.h"
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
 
 /* COMMON DEFINES */
 #define ASSETS_DIR		"assets"

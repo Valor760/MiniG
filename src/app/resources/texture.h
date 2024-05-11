@@ -1,8 +1,6 @@
 #pragma once
 #include "app/common.h"
 
-#include <GLFW/glfw3.h>
-
 namespace MiniG::Resources
 {
 class Texture
