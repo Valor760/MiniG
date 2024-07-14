@@ -32,6 +32,7 @@ else()
 	set(OS_LIBS)
 endif()
 
+add_dependencies(${EXEC} glfw)
 target_link_libraries(${EXEC} PUBLIC ${OS_LIBS} ${COMMON_LIBS})
 
 # Copy assets to the binary directory
